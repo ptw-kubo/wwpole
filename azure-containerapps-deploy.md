@@ -143,3 +143,4 @@ az storage blob list `
 - Blobへ保存されるJSONには、回答本文、受信日時、回答ID、User-Agent、`x-forwarded-for` が含まれる。
 - 生回答データにはAI利用実態やリスク情報が含まれるため、Storage AccountとContainer Appの権限は最小限にする。
 - Container Appsのコンテナ内ファイルは正本保存先にしない。
+- 同一ブラウザ/端末からの二重回答は、ブラウザに保存した `respondent_id` とBlob上の `respondents/` マーカーで防止する。別ブラウザ、別端末、localStorage削除まで含めて同一人物を厳密に判定する場合は、Entra IDなどのログイン認証を追加する。

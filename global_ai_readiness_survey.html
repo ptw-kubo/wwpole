@@ -213,6 +213,7 @@
       margin: 0;
       font-size: 1rem;
       font-weight: 800;
+      white-space: pre-line;
     }
 
     .meta {
@@ -450,6 +451,7 @@
           resultBody: "回答データを管理された保存先へ送信しました。必要に応じて、JSONまたはCSVも手元に保存できます。",
           resultLocalOnly: "この実行環境ではサーバー送信を行いません。必要に応じて、生成されたJSONまたはCSVを管理された保存先に格納してください。",
           resultSaveFailed: "回答データのサーバー保存に失敗しました。通信状態を確認して再度実行してください。",
+          resultDuplicate: "このブラウザでは既に回答済みです。重複回答はできません。",
           downloadJson: "JSONを保存",
           downloadCsv: "CSVを保存",
           placeholder: "例：社内規程や過去資料を探す時間を減らしたい",
@@ -488,6 +490,7 @@
           resultBody: "Response data has been sent to the managed storage destination. You can also save JSON or CSV locally as needed.",
           resultLocalOnly: "This environment does not send data to a server. Store the generated JSON or CSV in a controlled location as needed.",
           resultSaveFailed: "Failed to save the response data to the server. Check the network status and try again.",
+          resultDuplicate: "This browser has already submitted a response. Duplicate responses are not allowed.",
           downloadJson: "Save JSON",
           downloadCsv: "Save CSV",
           placeholder: "Example: Reduce the time spent searching internal policies and past documents",
@@ -526,6 +529,7 @@
           resultBody: "回答数据已发送到受控保存位置。也可以根据需要在本地保存 JSON 或 CSV。",
           resultLocalOnly: "此环境不会向服务器发送数据。请根据需要将生成的 JSON 或 CSV 保存到受控位置。",
           resultSaveFailed: "回答数据保存到服务器失败。请检查网络状态后重试。",
+          resultDuplicate: "此浏览器已提交过回答，不能重复回答。",
           downloadJson: "保存 JSON",
           downloadCsv: "保存 CSV",
           placeholder: "例：减少查找内部规程和历史资料所花费的时间",
@@ -564,6 +568,7 @@
           resultBody: "Los datos de respuesta se enviaron al destino de almacenamiento administrado. También puede guardar JSON o CSV localmente si es necesario.",
           resultLocalOnly: "Este entorno no envía datos a un servidor. Guarde el JSON o CSV generado en una ubicación controlada según sea necesario.",
           resultSaveFailed: "No se pudieron guardar los datos de respuesta en el servidor. Verifique la red e inténtelo de nuevo.",
+          resultDuplicate: "Este navegador ya ha enviado una respuesta. No se permiten respuestas duplicadas.",
           downloadJson: "Guardar JSON",
           downloadCsv: "Guardar CSV",
           placeholder: "Ejemplo: Reducir el tiempo dedicado a buscar políticas internas y documentos anteriores",
@@ -599,7 +604,7 @@
         q15: "AIはあなたの業務プロセスにどの程度組み込まれていますか",
         q16: "あなたの会社・部門では、経営層または管理職がAI活用を推進していますか",
         q17: "業務でAIを使うための教育・研修を受けたことがありますか",
-        q18: "安全なエンタープライズLLMが会社から提供された場合、利用したいですか",
+        q18: "安全なエンタープライズLLM（*）が会社から提供された場合、利用したいですか\n* エンタープライズLLM：企業での利用を想定した、セキュリティやプライバシーに配慮されたAIモデル",
         q19: "全社LLMに期待する機能を選択してください",
         q20: "AIで解決したい業務課題を1つ記入してください"
       },
@@ -621,7 +626,7 @@
         q15: "How deeply is AI integrated into your work process?",
         q16: "In your company or department, do executives or managers promote AI use?",
         q17: "Have you received training to use AI for work?",
-        q18: "If the company provided a secure enterprise LLM, would you want to use it?",
+        q18: "If the company provided a secure enterprise LLM (*), would you want to use it?\n* Enterprise LLM: An AI model designed for business use with security and privacy safeguards.",
         q19: "Select the functions you expect from a company-wide LLM",
         q20: "Describe one business issue you would like AI to solve"
       },
@@ -643,7 +648,7 @@
         q15: "AI 在多大程度上融入了您的工作流程？",
         q16: "在您的公司或部门，经营层或管理者是否推动 AI 使用？",
         q17: "您是否接受过为了在工作中使用 AI 的教育或培训？",
-        q18: "如果公司提供安全的企业级 LLM，您是否愿意使用？",
+        q18: "如果公司提供安全的企业级 LLM（*），您是否愿意使用？\n* 企业级 LLM：面向企业使用场景设计，并重视安全和隐私保护的 AI 模型。",
         q19: "请选择您期待全公司 LLM 具备的功能",
         q20: "请填写一个希望通过 AI 解决的业务课题"
       },
@@ -665,7 +670,7 @@
         q15: "¿En qué medida está integrada la IA en su proceso de trabajo?",
         q16: "En su empresa o departamento, ¿la dirección o los mandos promueven el uso de IA?",
         q17: "¿Ha recibido capacitación para usar IA en el trabajo?",
-        q18: "Si la empresa proporcionara un LLM empresarial seguro, ¿le gustaría usarlo?",
+        q18: "Si la empresa proporcionara un LLM empresarial seguro (*), ¿le gustaría usarlo?\n* LLM empresarial: modelo de IA diseñado para uso corporativo, con medidas de seguridad y privacidad.",
         q19: "Seleccione las funciones que espera de un LLM para toda la empresa",
         q20: "Describa un problema de negocio que le gustaría resolver con IA"
       }
@@ -763,6 +768,9 @@
       latestResponse: null
     };
 
+    const respondentIdKey = "global_ai_readiness_survey.respondent_id";
+    const submittedKey = "global_ai_readiness_survey.submitted";
+
     const form = document.getElementById("surveyForm");
     const questionContainer = document.getElementById("questionContainer");
     const resultPanel = document.getElementById("resultPanel");
@@ -782,6 +790,47 @@
         value = value.replace(`{${token}}`, replacement);
       });
       return value;
+    }
+
+    function safeStorageGet(key) {
+      try {
+        return window.localStorage.getItem(key);
+      } catch (error) {
+        return "";
+      }
+    }
+
+    function safeStorageSet(key, value) {
+      try {
+        window.localStorage.setItem(key, value);
+      } catch (error) {
+        // Storage can be unavailable in restricted browser modes.
+      }
+    }
+
+    function createUuid() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return window.crypto.randomUUID();
+      }
+      return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (char) => (
+        Number(char) ^ window.crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> Number(char) / 4
+      ).toString(16));
+    }
+
+    function getRespondentId() {
+      const existing = safeStorageGet(respondentIdKey);
+      if (existing) return existing;
+      const created = createUuid();
+      safeStorageSet(respondentIdKey, created);
+      return created;
+    }
+
+    function hasSubmittedBefore() {
+      return safeStorageGet(submittedKey) === "true";
+    }
+
+    function markSubmitted() {
+      safeStorageSet(submittedKey, "true");
     }
 
     function optionLabel(code) {
@@ -841,6 +890,13 @@
       document.getElementById("resultBody").textContent = t("ui.resultBody");
       document.getElementById("downloadJson").textContent = t("ui.downloadJson");
       document.getElementById("downloadCsv").textContent = t("ui.downloadCsv");
+      if (shouldPostToServer() && hasSubmittedBefore()) {
+        document.getElementById("submitButton").disabled = true;
+        document.getElementById("resultBody").textContent = t("ui.resultDuplicate");
+        resultPanel.classList.add("active");
+      } else {
+        document.getElementById("submitButton").disabled = false;
+      }
     }
 
     function renderQuestions() {
@@ -899,7 +955,7 @@
       renderStaticText();
       renderQuestions();
       restoreAnswers(savedAnswers);
-      resultPanel.classList.remove("active");
+      if (!hasSubmittedBefore()) resultPanel.classList.remove("active");
     }
 
     function getValue(id) {
@@ -980,6 +1036,7 @@
       return {
         survey: "global_ai_readiness_survey",
         language: state.language,
+        respondent_id: getRespondentId(),
         submitted_at: new Date().toISOString(),
         answers
       };
@@ -1021,7 +1078,10 @@
       });
       const body = await result.json().catch(() => ({}));
       if (!result.ok || !body.ok) {
-        throw new Error(body.error || `Save failed with status ${result.status}`);
+        const error = new Error(body.error || `Save failed with status ${result.status}`);
+        error.status = result.status;
+        error.code = body.code || "";
+        throw error;
       }
       return body;
     }
@@ -1062,6 +1122,12 @@
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
+      if (shouldPostToServer() && hasSubmittedBefore()) {
+        document.getElementById("resultBody").textContent = t("ui.resultDuplicate");
+        resultPanel.classList.add("active");
+        resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
       if (!validateForm()) return;
       const submitButton = document.getElementById("submitButton");
       submitButton.disabled = true;
@@ -1069,6 +1135,8 @@
       try {
         if (shouldPostToServer()) {
           state.latestResponse.server_result = await postResponse(state.latestResponse);
+          markSubmitted();
+          submitButton.disabled = true;
           document.getElementById("resultBody").textContent = t("ui.resultBody");
         } else {
           document.getElementById("resultBody").textContent = t("ui.resultLocalOnly");
@@ -1076,11 +1144,15 @@
         resultPanel.classList.add("active");
         resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (error) {
-        document.getElementById("resultBody").textContent = t("ui.resultSaveFailed");
+        document.getElementById("resultBody").textContent = error.code === "duplicate_response" ? t("ui.resultDuplicate") : t("ui.resultSaveFailed");
+        if (error.code === "duplicate_response") {
+          markSubmitted();
+          submitButton.disabled = true;
+        }
         resultPanel.classList.add("active");
         resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
       } finally {
-        submitButton.disabled = false;
+        if (!hasSubmittedBefore()) submitButton.disabled = false;
       }
     });
 

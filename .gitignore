@@ -5,3 +5,4 @@ data/
 .env.*
 npm-debug.log*
 *.local
+global_ai_readiness_survey_test_execution_report.md

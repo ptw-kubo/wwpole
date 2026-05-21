@@ -16,6 +16,13 @@ const maxPayloadBytes = 64 * 1024;
 app.disable("x-powered-by");
 app.use(express.json({ limit: `${maxPayloadBytes}b` }));
 
+class DuplicateSubmissionError extends Error {
+  constructor() {
+    super("This respondent has already submitted a response.");
+    this.name = "DuplicateSubmissionError";
+  }
+}
+
 function isString(value, maxLength = 1000) {
   return typeof value === "string" && value.length <= maxLength;
 }
@@ -25,6 +32,7 @@ function validateResponse(payload) {
   if (payload.survey !== "global_ai_readiness_survey") return "Invalid survey value.";
   if (!["ja", "en", "zh", "es"].includes(payload.language)) return "Invalid language value.";
   if (!isString(payload.submitted_at, 40) || Number.isNaN(Date.parse(payload.submitted_at))) return "Invalid submitted_at value.";
+  if (!isString(payload.respondent_id, 80) || !/^[0-9a-f-]{36}$/i.test(payload.respondent_id)) return "Invalid respondent_id value.";
   if (!payload.answers || typeof payload.answers !== "object" || Array.isArray(payload.answers)) return "answers must be an object.";
 
   for (let index = 1; index <= 20; index += 1) {
@@ -96,6 +104,25 @@ function responseObjectNames(record) {
   };
 }
 
+function respondentMarkerName(record) {
+  const respondentHash = crypto
+    .createHash("sha256")
+    .update(record.response.respondent_id)
+    .digest("hex");
+  return `respondents/${respondentHash}.json`;
+}
+
+function respondentMarkerBuffer(record) {
+  return Buffer.from(JSON.stringify({
+    respondent_hash: crypto
+      .createHash("sha256")
+      .update(record.response.respondent_id)
+      .digest("hex"),
+    response_id: record.id,
+    received_at: record.received_at
+  }, null, 2), "utf8");
+}
+
 async function saveToAzureBlob(record) {
   const credential = new DefaultAzureCredential();
   const blobServiceClient = new BlobServiceClient(
@@ -105,6 +132,16 @@ async function saveToAzureBlob(record) {
   const containerClient = blobServiceClient.getContainerClient(storageContainerName);
   await containerClient.createIfNotExists();
   const names = responseObjectNames(record);
+  const markerName = respondentMarkerName(record);
+  try {
+    await containerClient.getBlockBlobClient(markerName).uploadData(respondentMarkerBuffer(record), {
+      blobHTTPHeaders: { blobContentType: "application/json; charset=utf-8" },
+      conditions: { ifNoneMatch: "*" }
+    });
+  } catch (error) {
+    if (error.statusCode === 409 || error.statusCode === 412) throw new DuplicateSubmissionError();
+    throw error;
+  }
   await containerClient.getBlockBlobClient(names.json).uploadData(jsonBuffer(record), {
     blobHTTPHeaders: { blobContentType: "application/json; charset=utf-8" },
     metadata: {
@@ -119,17 +156,24 @@ async function saveToAzureBlob(record) {
       language: record.response.language
     }
   });
-  return { kind: "azure_blob", container: storageContainerName, json: names.json, csv: names.csv };
+  return { kind: "azure_blob", container: storageContainerName, json: names.json, csv: names.csv, respondent_marker: markerName };
 }
 
 async function saveToLocalFile(record) {
   await fs.mkdir(localResponseDir, { recursive: true });
   const names = responseObjectNames(record);
+  const markerPath = path.join(localResponseDir, respondentMarkerName(record).replace(/\//g, "_"));
   const jsonPath = path.join(localResponseDir, names.json.replace(/\//g, "_"));
   const csvPath = path.join(localResponseDir, names.csv.replace(/\//g, "_"));
+  try {
+    await fs.writeFile(markerPath, respondentMarkerBuffer(record), { flag: "wx" });
+  } catch (error) {
+    if (error.code === "EEXIST") throw new DuplicateSubmissionError();
+    throw error;
+  }
   await fs.writeFile(jsonPath, jsonBuffer(record));
   await fs.writeFile(csvPath, csvBuffer(record));
-  return { kind: "local_file", json: jsonPath, csv: csvPath };
+  return { kind: "local_file", json: jsonPath, csv: csvPath, respondent_marker: markerPath };
 }
 
 async function saveRecord(record) {
@@ -161,6 +205,10 @@ app.post("/api/responses", async (request, response) => {
       storage
     });
   } catch (error) {
+    if (error instanceof DuplicateSubmissionError) {
+      response.status(409).json({ ok: false, code: "duplicate_response", error: "This respondent has already submitted a response." });
+      return;
+    }
     console.error("Failed to save response", error);
     response.status(500).json({ ok: false, error: "Failed to save response." });
   }

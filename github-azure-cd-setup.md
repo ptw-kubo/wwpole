@@ -149,3 +149,4 @@ CSV Blob Path: csv/YYYY-MM-DD/<received_at>_<response_id>.csv
 - `Role Based Access Control Administrator` をGitHub Actions用IDに付けたくない場合は、初回だけ手動でContainer AppのManaged Identityに `Storage Blob Data Contributor` を付与し、workflowの `Assign storage role to Container App identity` stepを削除または無効化する。
 - GitHub Actionsの認証はClient SecretではなくOIDCを使う。Secretにクライアントシークレットを置かない。
 - 本番回答データはBlobにJSONとCSVの両方を保存する。JSONは監査・正本用、CSVは集計・Excel/Power BI用として扱う。
+- 二重回答防止は同一ブラウザ/端末を対象にする。厳密な同一人物判定が必要な場合は、Container Appsの認証またはEntra ID連携を追加する。

@@ -15,6 +15,7 @@ function validPayload() {
   return {
     survey: "global_ai_readiness_survey",
     language: "ja",
+    respondent_id: "11111111-1111-4111-8111-111111111111",
     submitted_at: new Date().toISOString(),
     answers: {
       q01: "japan_headquarters",
@@ -90,6 +91,7 @@ function waitForServer(processHandle) {
     await assert.equal(saveBody.storage.kind, "local_file");
     await assert.ok(fs.existsSync(saveBody.storage.json));
     await assert.ok(fs.existsSync(saveBody.storage.csv));
+    await assert.ok(fs.existsSync(saveBody.storage.respondent_marker));
 
     const savedRecord = JSON.parse(fs.readFileSync(saveBody.storage.json, "utf8"));
     await assert.equal(savedRecord.response.survey, "global_ai_readiness_survey");
@@ -100,6 +102,14 @@ function waitForServer(processHandle) {
     await assert.match(savedCsv, /^"response_id","received_at","survey","language","submitted_at","q01"/);
     await assert.match(savedCsv, /"global_ai_readiness_survey","ja"/);
     await assert.match(savedCsv, /"writing;summarization;translation;test_case_creation;test_automation"/);
+
+    const duplicate = await fetch(`${baseUrl}/api/responses`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(validPayload())
+    });
+    await assert.equal(duplicate.status, 409);
+    await assert.equal((await duplicate.json()).code, "duplicate_response");
 
     const invalid = validPayload();
     delete invalid.answers.q19;
