@@ -26,7 +26,11 @@ async function launchBrowser() {
 }
 
 async function newPage(browser) {
-  const context = await browser.newContext({ acceptDownloads: true });
+  const context = await browser.newContext({
+    acceptDownloads: true,
+    locale: "ja-JP",
+    timezoneId: "Asia/Tokyo"
+  });
   const page = await context.newPage();
   const externalRequests = [];
   page.on("request", (request) => {
@@ -202,7 +206,11 @@ test("NF-001", "代表3画面幅で主要導線を実行できる", async ({ bro
     { width: 390, height: 844 }
   ];
   for (const viewport of viewports) {
-    const context = await browser.newContext({ viewport });
+    const context = await browser.newContext({
+      viewport,
+      locale: "ja-JP",
+      timezoneId: "Asia/Tokyo"
+    });
     const page = await context.newPage();
     await page.goto(fileUrl);
     await assert.equal(await page.locator(".question").count(), 20);
@@ -265,6 +273,10 @@ test("NF-001", "代表3画面幅で主要導線を実行できる", async ({ bro
   fs.writeFileSync(reportPath, `${lines.join("\n")}\n`, "utf8");
 
   console.log(`${passCount}/${results.length} PASS, ${failCount} FAIL`);
+  for (const result of results.filter((item) => item.status === "FAIL")) {
+    console.error(`${result.id} ${result.title}`);
+    console.error(result.error?.stack || result.error?.message || result.error);
+  }
   console.log(reportPath);
   if (failCount > 0) process.exitCode = 1;
 })();
