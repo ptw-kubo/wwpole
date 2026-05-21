@@ -93,7 +93,9 @@ function waitForServer(processHandle) {
     await assert.equal(saveBody.storage.kind, "local_file");
     await assert.ok(fs.existsSync(saveBody.storage.json));
     await assert.ok(fs.existsSync(saveBody.storage.csv));
-    await assert.ok(fs.existsSync(saveBody.storage.respondent_marker));
+    await assert.equal("respondent_marker" in saveBody.storage, false);
+    await assert.match(saveBody.storage.json.replaceAll("\\", "/"), /\/2026-\d{2}-\d{2}\/json\/.+\.json$/);
+    await assert.match(saveBody.storage.csv.replaceAll("\\", "/"), /\/2026-\d{2}-\d{2}\/csv\/.+\.csv$/);
 
     const savedRecord = JSON.parse(fs.readFileSync(saveBody.storage.json, "utf8"));
     await assert.equal(savedRecord.company_code, "jp-hq-7kx92");

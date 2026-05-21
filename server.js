@@ -112,30 +112,65 @@ function csvBuffer(record) {
   return Buffer.from(`${headers.map(escapeCell).join(",")}\r\n${row.map(escapeCell).join(",")}\r\n`, "utf8");
 }
 
-function baseResponseName(record) {
-  const date = record.received_at.slice(0, 10);
-  return `${date}/${record.received_at.replaceAll(":", "-")}_${record.id}`;
-}
-
 function responseObjectNames(record) {
-  const baseName = baseResponseName(record);
+  const date = record.received_at.slice(0, 10);
+  const baseName = `${record.received_at.replaceAll(":", "-")}_${record.id}`;
   return {
-    json: `json/${baseName}.json`,
-    csv: `csv/${baseName}.csv`
+    json: `${date}/json/${baseName}.json`,
+    csv: `${date}/csv/${baseName}.csv`
   };
 }
 
-function respondentMarkerName(record) {
-  return `respondents/${record.company_code}/${record.response_code_hash}.json`;
+function isResponseJsonName(name) {
+  return name.endsWith(".json") && (/(^|\/)json\//.test(name) || /^json\//.test(name));
 }
 
-function respondentMarkerBuffer(record) {
-  return Buffer.from(JSON.stringify({
-    company_code: record.company_code,
-    response_code_hash: record.response_code_hash,
-    response_id: record.id,
-    received_at: record.received_at
-  }, null, 2), "utf8");
+function isDuplicateRecord(candidate, record) {
+  return candidate
+    && candidate.company_code === record.company_code
+    && candidate.response_code_hash === record.response_code_hash;
+}
+
+async function hasDuplicateInAzureBlob(containerClient, record) {
+  for await (const blob of containerClient.listBlobsFlat()) {
+    if (!isResponseJsonName(blob.name)) continue;
+    const buffer = await containerClient.getBlobClient(blob.name).downloadToBuffer();
+    try {
+      if (isDuplicateRecord(JSON.parse(buffer.toString("utf8")), record)) return true;
+    } catch (_) {
+      // Ignore malformed or unrelated JSON files in the container.
+    }
+  }
+  return false;
+}
+
+async function collectLocalJsonFiles(directory) {
+  const entries = await fs.readdir(directory, { withFileTypes: true }).catch((error) => {
+    if (error.code === "ENOENT") return [];
+    throw error;
+  });
+  const files = [];
+  for (const entry of entries) {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...await collectLocalJsonFiles(entryPath));
+    } else if (entry.isFile() && entry.name.endsWith(".json")) {
+      files.push(entryPath);
+    }
+  }
+  return files;
+}
+
+async function hasDuplicateInLocalFiles(record) {
+  const files = await collectLocalJsonFiles(localResponseDir);
+  for (const file of files) {
+    try {
+      if (isDuplicateRecord(JSON.parse(await fs.readFile(file, "utf8")), record)) return true;
+    } catch (_) {
+      // Ignore malformed or unrelated JSON files in the local response directory.
+    }
+  }
+  return false;
 }
 
 async function saveToAzureBlob(record) {
@@ -147,16 +182,7 @@ async function saveToAzureBlob(record) {
   const containerClient = blobServiceClient.getContainerClient(storageContainerName);
   await containerClient.createIfNotExists();
   const names = responseObjectNames(record);
-  const markerName = respondentMarkerName(record);
-  try {
-    await containerClient.getBlockBlobClient(markerName).uploadData(respondentMarkerBuffer(record), {
-      blobHTTPHeaders: { blobContentType: "application/json; charset=utf-8" },
-      conditions: { ifNoneMatch: "*" }
-    });
-  } catch (error) {
-    if (error.statusCode === 409 || error.statusCode === 412) throw new DuplicateSubmissionError();
-    throw error;
-  }
+  if (await hasDuplicateInAzureBlob(containerClient, record)) throw new DuplicateSubmissionError();
   await containerClient.getBlockBlobClient(names.json).uploadData(jsonBuffer(record), {
     blobHTTPHeaders: { blobContentType: "application/json; charset=utf-8" },
     metadata: {
@@ -171,24 +197,20 @@ async function saveToAzureBlob(record) {
       language: record.response.language
     }
   });
-  return { kind: "azure_blob", container: storageContainerName, json: names.json, csv: names.csv, respondent_marker: markerName };
+  return { kind: "azure_blob", container: storageContainerName, json: names.json, csv: names.csv };
 }
 
 async function saveToLocalFile(record) {
   await fs.mkdir(localResponseDir, { recursive: true });
   const names = responseObjectNames(record);
-  const markerPath = path.join(localResponseDir, respondentMarkerName(record).replace(/\//g, "_"));
-  const jsonPath = path.join(localResponseDir, names.json.replace(/\//g, "_"));
-  const csvPath = path.join(localResponseDir, names.csv.replace(/\//g, "_"));
-  try {
-    await fs.writeFile(markerPath, respondentMarkerBuffer(record), { flag: "wx" });
-  } catch (error) {
-    if (error.code === "EEXIST") throw new DuplicateSubmissionError();
-    throw error;
-  }
+  if (await hasDuplicateInLocalFiles(record)) throw new DuplicateSubmissionError();
+  const jsonPath = path.join(localResponseDir, ...names.json.split("/"));
+  const csvPath = path.join(localResponseDir, ...names.csv.split("/"));
+  await fs.mkdir(path.dirname(jsonPath), { recursive: true });
+  await fs.mkdir(path.dirname(csvPath), { recursive: true });
   await fs.writeFile(jsonPath, jsonBuffer(record));
   await fs.writeFile(csvPath, csvBuffer(record));
-  return { kind: "local_file", json: jsonPath, csv: csvPath, respondent_marker: markerPath };
+  return { kind: "local_file", json: jsonPath, csv: csvPath };
 }
 
 async function saveRecord(record) {

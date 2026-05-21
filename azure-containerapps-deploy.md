@@ -13,9 +13,8 @@ Azure上の保存先は以下。
 ```text
 Storage Account: <任意のストレージアカウント名>
 Blob Container: survey-responses
-JSON Blob Path: json/YYYY-MM-DD/<received_at>_<response_id>.json
-CSV Blob Path: csv/YYYY-MM-DD/<received_at>_<response_id>.csv
-Response Marker Path: respondents/<company_code>/<response_code_hash>.json
+JSON Blob Path: YYYY-MM-DD/json/<received_at>_<response_id>.json
+CSV Blob Path: YYYY-MM-DD/csv/<received_at>_<response_id>.csv
 ```
 
 回答者PCにもJSON/CSVをダウンロードできる補助出力を残している。Azure側では監査・正本用にJSON、集計・Excel/Power BI用にCSVを保存する。
@@ -29,7 +28,7 @@ https://<container-app-fqdn>/?company=jp-hq-7kx92
 https://<container-app-fqdn>/?company=th-company-q3m8a
 ```
 
-各社担当者は社員へ回答コードを配布する。回答時には会社コードと回答コードの組み合わせをサーバー側でハッシュ化し、同じ組み合わせの再回答を拒否する。生の回答コードはBlobへ保存しない。
+各社担当者は社員へ回答コードを配布する。回答時には会社コードと回答コードの組み合わせをサーバー側でハッシュ化し、保存済みJSONに同じ組み合わせがある場合は再回答を拒否する。生の回答コードはBlobへ保存しない。
 
 ## 必要なAzureリソース
 
@@ -145,7 +144,7 @@ Invoke-RestMethod "https://$url/healthz"
 az storage blob list `
   --account-name stwwpolesurvey001 `
   --container-name survey-responses `
-  --prefix csv/ `
+  --prefix 2026-05-21/csv/ `
   --auth-mode login `
   --output table
 ```
@@ -155,4 +154,4 @@ az storage blob list `
 - Blobへ保存されるJSONには、回答本文、受信日時、回答ID、User-Agent、`x-forwarded-for` が含まれる。
 - 生回答データにはAI利用実態やリスク情報が含まれるため、Storage AccountとContainer Appの権限は最小限にする。
 - Container Appsのコンテナ内ファイルは正本保存先にしない。
-- 二重回答は、会社コードと回答コードのハッシュをBlob上の `respondents/` マーカーで防止する。ブラウザにも送信済み状態を保存し、同じ会社コードと回答コードでの再送信を画面上でも抑止する。
+- 二重回答は、保存済みJSON内の会社コードと回答コードハッシュを確認して防止する。ブラウザにも送信済み状態を保存し、同じ会社コードと回答コードでの再送信を画面上でも抑止する。
