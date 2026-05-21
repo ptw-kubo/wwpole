@@ -15,6 +15,8 @@ function validPayload() {
   return {
     survey: "global_ai_readiness_survey",
     language: "ja",
+    company_code: "jp-hq-7kx92",
+    response_code: "qa-test-0001",
     respondent_id: "11111111-1111-4111-8111-111111111111",
     submitted_at: new Date().toISOString(),
     answers: {
@@ -94,12 +96,17 @@ function waitForServer(processHandle) {
     await assert.ok(fs.existsSync(saveBody.storage.respondent_marker));
 
     const savedRecord = JSON.parse(fs.readFileSync(saveBody.storage.json, "utf8"));
+    await assert.equal(savedRecord.company_code, "jp-hq-7kx92");
+    await assert.match(savedRecord.response_code_hash, /^[a-f0-9]{64}$/);
+    await assert.equal("response_code" in savedRecord.response, false);
     await assert.equal(savedRecord.response.survey, "global_ai_readiness_survey");
     await assert.equal(savedRecord.response.answers.q01, "japan_headquarters");
     await assert.deepEqual(savedRecord.response.answers.q08, ["writing", "summarization", "translation", "test_case_creation", "test_automation"]);
 
     const savedCsv = fs.readFileSync(saveBody.storage.csv, "utf8");
-    await assert.match(savedCsv, /^"response_id","received_at","survey","language","submitted_at","q01"/);
+    await assert.match(savedCsv, /^"response_id","received_at","company_code","response_code_hash","survey","language","submitted_at","q01"/);
+    await assert.match(savedCsv, /"jp-hq-7kx92","[a-f0-9]{64}","global_ai_readiness_survey","ja"/);
+    await assert.match(savedCsv, /"japan_headquarters","japan","qa_testing","manager"/);
     await assert.match(savedCsv, /"global_ai_readiness_survey","ja"/);
     await assert.match(savedCsv, /"writing;summarization;translation;test_case_creation;test_automation"/);
 

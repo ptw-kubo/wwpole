@@ -72,7 +72,7 @@
       align-items: start;
     }
 
-    aside, .intro, fieldset, .actions, .result-panel {
+    aside, .intro, .access-panel, fieldset, .actions, .result-panel {
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -154,6 +154,58 @@
     .intro {
       padding: 22px 24px;
       margin-bottom: 18px;
+    }
+
+    .access-panel {
+      padding: 20px 24px;
+      margin-bottom: 18px;
+    }
+
+    .access-panel h2 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+    }
+
+    .access-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+      gap: 14px;
+      align-items: end;
+      margin-top: 12px;
+    }
+
+    .access-field label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+
+    .company-code {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .response-code-input {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      font: inherit;
+      text-transform: uppercase;
+    }
+
+    .access-note {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
     }
 
     .intro h2, .result-panel h2 {
@@ -332,7 +384,8 @@
 
     @media (max-width: 560px) {
       .header-inner, main { width: min(100% - 20px, 1120px); }
-      .intro, .question, .actions, .result-panel { padding: 16px; }
+      .intro, .access-panel, .question, .actions, .result-panel { padding: 16px; }
+      .access-grid { grid-template-columns: 1fr; }
       .actions { justify-content: stretch; }
       .action-button { width: 100%; }
     }
@@ -362,6 +415,22 @@
     </aside>
 
     <form id="surveyForm" novalidate>
+      <section class="access-panel" aria-labelledby="accessTitle">
+        <h2 id="accessTitle"></h2>
+        <p class="access-note" id="accessLead"></p>
+        <div class="access-grid">
+          <div class="access-field">
+            <label id="companyCodeLabel"></label>
+            <div class="company-code" id="companyCodeDisplay"></div>
+          </div>
+          <div class="access-field">
+            <label for="responseCode" id="responseCodeLabel"></label>
+            <input class="response-code-input" id="responseCode" name="response_code" type="text" autocomplete="one-time-code" maxlength="80">
+          </div>
+        </div>
+        <p class="access-note" id="responseCodeHint"></p>
+      </section>
+
       <section class="intro" aria-labelledby="introTitle">
         <h2 id="introTitle"></h2>
         <p id="introP1"></p>
@@ -435,6 +504,13 @@
           progress: "{answered} / {total} 問",
           noticeTitle: "機密情報は記載しないでください",
           noticeBody: "自由記述欄には、顧客名、個人名、案件名、契約情報、未公開財務情報、ソースコード、顧客資料の内容、その他機密情報を記載しないでください。",
+          accessTitle: "回答コードの確認",
+          accessLead: "会社別URLと配布された回答コードで回答を受け付けます。",
+          companyCode: "会社コード",
+          missingCompany: "会社コードがURLに含まれていません。配布された会社別URLからアクセスしてください。",
+          responseCode: "回答コード",
+          responseCodeHint: "各社担当者から配布された回答コードを入力してください。同じ会社コードと回答コードでは再回答できません。",
+          responseCodeError: "回答コードを半角英数字とハイフンで入力してください。",
           introTitle: "回答前の確認",
           introP1: "本調査は、個人の評価・監視を目的とするものではありません。",
           introP2: "回答結果は、会社・国・部門単位で集計し、個人が特定される形では報告しません。",
@@ -451,7 +527,7 @@
           resultBody: "回答データを管理された保存先へ送信しました。必要に応じて、JSONまたはCSVも手元に保存できます。",
           resultLocalOnly: "この実行環境ではサーバー送信を行いません。必要に応じて、生成されたJSONまたはCSVを管理された保存先に格納してください。",
           resultSaveFailed: "回答データのサーバー保存に失敗しました。通信状態を確認して再度実行してください。",
-          resultDuplicate: "このブラウザでは既に回答済みです。重複回答はできません。",
+          resultDuplicate: "この会社コードと回答コードでは既に回答済みです。重複回答はできません。",
           downloadJson: "JSONを保存",
           downloadCsv: "CSVを保存",
           placeholder: "例：社内規程や過去資料を探す時間を減らしたい",
@@ -474,6 +550,13 @@
           progress: "{answered} / {total} questions",
           noticeTitle: "Do not enter confidential information",
           noticeBody: "Do not enter customer names, personal names, project names, contract information, non-public financial information, source code, customer materials, or other confidential information in free-text fields.",
+          accessTitle: "Response code check",
+          accessLead: "Responses are accepted using a company-specific URL and the distributed response code.",
+          companyCode: "Company code",
+          missingCompany: "The company code is missing from the URL. Please access the survey using the company-specific URL you received.",
+          responseCode: "Response code",
+          responseCodeHint: "Enter the response code distributed by your company contact. The same company code and response code cannot be used twice.",
+          responseCodeError: "Enter your response code using letters, numbers, and hyphens.",
           introTitle: "Before You Respond",
           introP1: "This survey is not intended for individual evaluation or monitoring.",
           introP2: "Results will be aggregated by company, country or region, and department. Reports will not identify individuals.",
@@ -490,7 +573,7 @@
           resultBody: "Response data has been sent to the managed storage destination. You can also save JSON or CSV locally as needed.",
           resultLocalOnly: "This environment does not send data to a server. Store the generated JSON or CSV in a controlled location as needed.",
           resultSaveFailed: "Failed to save the response data to the server. Check the network status and try again.",
-          resultDuplicate: "This browser has already submitted a response. Duplicate responses are not allowed.",
+          resultDuplicate: "This company code and response code have already been used. Duplicate responses are not allowed.",
           downloadJson: "Save JSON",
           downloadCsv: "Save CSV",
           placeholder: "Example: Reduce the time spent searching internal policies and past documents",
@@ -513,6 +596,13 @@
           progress: "{answered} / {total} 题",
           noticeTitle: "请勿填写机密信息",
           noticeBody: "请勿在自由填写栏中输入客户名称、个人姓名、项目名称、合同信息、未公开财务信息、源代码、客户资料内容或其他机密信息。",
+          accessTitle: "回答代码确认",
+          accessLead: "请使用公司专用 URL 和分发的回答代码进行回答。",
+          companyCode: "公司代码",
+          missingCompany: "URL 中未包含公司代码。请使用收到的公司专用 URL 访问。",
+          responseCode: "回答代码",
+          responseCodeHint: "请输入各公司负责人分发的回答代码。同一公司代码和回答代码不能重复回答。",
+          responseCodeError: "请使用半角英数字和连字符输入回答代码。",
           introTitle: "回答前确认",
           introP1: "本调查不用于个人评价或监控。",
           introP2: "回答结果将按公司、国家或地区、部门进行汇总，不会以可识别个人的形式报告。",
@@ -529,7 +619,7 @@
           resultBody: "回答数据已发送到受控保存位置。也可以根据需要在本地保存 JSON 或 CSV。",
           resultLocalOnly: "此环境不会向服务器发送数据。请根据需要将生成的 JSON 或 CSV 保存到受控位置。",
           resultSaveFailed: "回答数据保存到服务器失败。请检查网络状态后重试。",
-          resultDuplicate: "此浏览器已提交过回答，不能重复回答。",
+          resultDuplicate: "此公司代码和回答代码已提交过回答，不能重复回答。",
           downloadJson: "保存 JSON",
           downloadCsv: "保存 CSV",
           placeholder: "例：减少查找内部规程和历史资料所花费的时间",
@@ -552,6 +642,13 @@
           progress: "{answered} / {total} preguntas",
           noticeTitle: "No introduzca información confidencial",
           noticeBody: "No introduzca nombres de clientes, nombres de personas, nombres de proyectos, información contractual, información financiera no pública, código fuente, materiales de clientes ni otra información confidencial en campos de texto libre.",
+          accessTitle: "Verificación del código de respuesta",
+          accessLead: "Las respuestas se aceptan mediante una URL específica de la empresa y el código de respuesta distribuido.",
+          companyCode: "Código de empresa",
+          missingCompany: "Falta el código de empresa en la URL. Acceda con la URL específica de la empresa que recibió.",
+          responseCode: "Código de respuesta",
+          responseCodeHint: "Introduzca el código de respuesta distribuido por el contacto de su empresa. No se puede responder dos veces con el mismo código de empresa y código de respuesta.",
+          responseCodeError: "Introduzca el código de respuesta con letras, números y guiones.",
           introTitle: "Antes de responder",
           introP1: "Esta encuesta no tiene como objetivo evaluar ni supervisar a personas.",
           introP2: "Los resultados se agregarán por empresa, país o región y departamento. Los informes no identificarán a personas.",
@@ -568,7 +665,7 @@
           resultBody: "Los datos de respuesta se enviaron al destino de almacenamiento administrado. También puede guardar JSON o CSV localmente si es necesario.",
           resultLocalOnly: "Este entorno no envía datos a un servidor. Guarde el JSON o CSV generado en una ubicación controlada según sea necesario.",
           resultSaveFailed: "No se pudieron guardar los datos de respuesta en el servidor. Verifique la red e inténtelo de nuevo.",
-          resultDuplicate: "Este navegador ya ha enviado una respuesta. No se permiten respuestas duplicadas.",
+          resultDuplicate: "Este código de empresa y código de respuesta ya se han utilizado. No se permiten respuestas duplicadas.",
           downloadJson: "Guardar JSON",
           downloadCsv: "Guardar CSV",
           placeholder: "Ejemplo: Reducir el tiempo dedicado a buscar políticas internas y documentos anteriores",
@@ -769,7 +866,6 @@
     };
 
     const respondentIdKey = "global_ai_readiness_survey.respondent_id";
-    const submittedKey = "global_ai_readiness_survey.submitted";
 
     const form = document.getElementById("surveyForm");
     const questionContainer = document.getElementById("questionContainer");
@@ -825,12 +921,31 @@
       return created;
     }
 
-    function hasSubmittedBefore() {
-      return safeStorageGet(submittedKey) === "true";
+    function markSubmitted() {
+      const key = getSubmissionKey();
+      if (key) safeStorageSet(key, "true");
     }
 
-    function markSubmitted() {
-      safeStorageSet(submittedKey, "true");
+    function getCompanyCode() {
+      const params = new URLSearchParams(window.location.search);
+      return (params.get("company") || "").trim().toLowerCase();
+    }
+
+    function getResponseCode() {
+      const field = document.getElementById("responseCode");
+      return field ? field.value.trim().toUpperCase() : "";
+    }
+
+    function getSubmissionKey() {
+      const companyCode = getCompanyCode();
+      const responseCode = getResponseCode();
+      if (!companyCode || !responseCode) return "";
+      return `global_ai_readiness_survey.submitted.${companyCode}.${responseCode}`;
+    }
+
+    function hasSubmittedBefore() {
+      const key = getSubmissionKey();
+      return key ? safeStorageGet(key) === "true" : false;
     }
 
     function optionLabel(code) {
@@ -880,6 +995,12 @@
       document.getElementById("progressTitle").textContent = t("ui.progressTitle");
       document.getElementById("noticeTitle").textContent = t("ui.noticeTitle");
       document.getElementById("noticeBody").textContent = t("ui.noticeBody");
+      document.getElementById("accessTitle").textContent = t("ui.accessTitle");
+      document.getElementById("accessLead").textContent = t("ui.accessLead");
+      document.getElementById("companyCodeLabel").textContent = t("ui.companyCode");
+      document.getElementById("responseCodeLabel").textContent = t("ui.responseCode");
+      document.getElementById("responseCodeHint").textContent = t("ui.responseCodeHint");
+      document.getElementById("companyCodeDisplay").textContent = getCompanyCode() || t("ui.missingCompany");
       document.getElementById("introTitle").textContent = t("ui.introTitle");
       document.getElementById("introP1").textContent = t("ui.introP1");
       document.getElementById("introP2").textContent = t("ui.introP2");
@@ -890,7 +1011,11 @@
       document.getElementById("resultBody").textContent = t("ui.resultBody");
       document.getElementById("downloadJson").textContent = t("ui.downloadJson");
       document.getElementById("downloadCsv").textContent = t("ui.downloadCsv");
-      if (shouldPostToServer() && hasSubmittedBefore()) {
+      if (shouldPostToServer() && !getCompanyCode()) {
+        document.getElementById("submitButton").disabled = true;
+        document.getElementById("resultBody").textContent = t("ui.missingCompany");
+        resultPanel.classList.add("active");
+      } else if (shouldPostToServer() && hasSubmittedBefore()) {
         document.getElementById("submitButton").disabled = true;
         document.getElementById("resultBody").textContent = t("ui.resultDuplicate");
         resultPanel.classList.add("active");
@@ -1003,6 +1128,29 @@
       questionNode.appendChild(error);
     }
 
+    function validateAccess() {
+      const accessPanel = document.querySelector(".access-panel");
+      if (!accessPanel) return true;
+      accessPanel.querySelectorAll(".error").forEach((node) => node.remove());
+      const companyPattern = /^[a-z0-9][a-z0-9-]{1,78}[a-z0-9]$/i;
+      const responseCodePattern = /^[a-z0-9][a-z0-9-]{3,78}[a-z0-9]$/i;
+
+      if (shouldPostToServer() && (!getCompanyCode() || !companyPattern.test(getCompanyCode()))) {
+        addError(accessPanel, t("ui.missingCompany"));
+        accessPanel.scrollIntoView({ behavior: "smooth", block: "center" });
+        return false;
+      }
+
+      if (shouldPostToServer() && (!getResponseCode() || !responseCodePattern.test(getResponseCode()))) {
+        addError(accessPanel, t("ui.responseCodeError"));
+        document.getElementById("responseCode").focus({ preventScroll: true });
+        accessPanel.scrollIntoView({ behavior: "smooth", block: "center" });
+        return false;
+      }
+
+      return true;
+    }
+
     function validateForm() {
       removeErrors();
       const invalid = [];
@@ -1036,6 +1184,8 @@
       return {
         survey: "global_ai_readiness_survey",
         language: state.language,
+        company_code: getCompanyCode(),
+        response_code: getResponseCode(),
         respondent_id: getRespondentId(),
         submitted_at: new Date().toISOString(),
         answers
@@ -1128,6 +1278,7 @@
         resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
         return;
       }
+      if (!validateAccess()) return;
       if (!validateForm()) return;
       const submitButton = document.getElementById("submitButton");
       submitButton.disabled = true;

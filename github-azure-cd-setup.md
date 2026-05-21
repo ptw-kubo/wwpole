@@ -142,6 +142,7 @@ Storage Account: GitHub variable AZURE_STORAGE_ACCOUNT_NAME
 Blob Container: survey-responses
 JSON Blob Path: json/YYYY-MM-DD/<received_at>_<response_id>.json
 CSV Blob Path: csv/YYYY-MM-DD/<received_at>_<response_id>.csv
+Response Marker Path: respondents/<company_code>/<response_code_hash>.json
 ```
 
 ## 5. 注意
@@ -149,4 +150,4 @@ CSV Blob Path: csv/YYYY-MM-DD/<received_at>_<response_id>.csv
 - `Role Based Access Control Administrator` をGitHub Actions用IDに付けたくない場合は、初回だけ手動でContainer AppのManaged Identityに `Storage Blob Data Contributor` を付与し、workflowの `Assign storage role to Container App identity` stepを削除または無効化する。
 - GitHub Actionsの認証はClient SecretではなくOIDCを使う。Secretにクライアントシークレットを置かない。
 - 本番回答データはBlobにJSONとCSVの両方を保存する。JSONは監査・正本用、CSVは集計・Excel/Power BI用として扱う。
-- 二重回答防止は同一ブラウザ/端末を対象にする。厳密な同一人物判定が必要な場合は、Container Appsの認証またはEntra ID連携を追加する。
+- Entra IDを使わない会社向けには、会社別URL `?company=<company_code>` と回答コードを配布する。同じ会社コードと回答コードの組み合わせはサーバー側でハッシュ化し、重複回答を拒否する。生の回答コードはBlobへ保存しない。

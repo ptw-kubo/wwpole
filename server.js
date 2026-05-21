@@ -31,8 +31,10 @@ function validateResponse(payload) {
   if (!payload || typeof payload !== "object") return "Request body must be a JSON object.";
   if (payload.survey !== "global_ai_readiness_survey") return "Invalid survey value.";
   if (!["ja", "en", "zh", "es"].includes(payload.language)) return "Invalid language value.";
+  if (!isString(payload.company_code, 80) || !/^[a-z0-9][a-z0-9-]{1,78}[a-z0-9]$/i.test(payload.company_code)) return "Invalid company_code value.";
+  if (!isString(payload.response_code, 80) || !/^[a-z0-9][a-z0-9-]{3,78}[a-z0-9]$/i.test(payload.response_code)) return "Invalid response_code value.";
   if (!isString(payload.submitted_at, 40) || Number.isNaN(Date.parse(payload.submitted_at))) return "Invalid submitted_at value.";
-  if (!isString(payload.respondent_id, 80) || !/^[0-9a-f-]{36}$/i.test(payload.respondent_id)) return "Invalid respondent_id value.";
+  if (payload.respondent_id && (!isString(payload.respondent_id, 80) || !/^[0-9a-f-]{36}$/i.test(payload.respondent_id))) return "Invalid respondent_id value.";
   if (!payload.answers || typeof payload.answers !== "object" || Array.isArray(payload.answers)) return "answers must be an object.";
 
   for (let index = 1; index <= 20; index += 1) {
@@ -49,17 +51,32 @@ function validateResponse(payload) {
   return null;
 }
 
+function responseCodeHash(payload) {
+  return crypto
+    .createHash("sha256")
+    .update(`${payload.company_code.toLowerCase()}:${payload.response_code.trim().toUpperCase()}`)
+    .digest("hex");
+}
+
 function createRecord(payload, request) {
   const receivedAt = new Date().toISOString();
   const id = crypto.randomUUID();
   return {
     id,
     received_at: receivedAt,
+    company_code: payload.company_code.toLowerCase(),
+    response_code_hash: responseCodeHash(payload),
     source: {
       user_agent: request.get("user-agent") || "",
       forwarded_for: request.get("x-forwarded-for") || ""
     },
-    response: payload
+    response: {
+      survey: payload.survey,
+      language: payload.language,
+      respondent_id: payload.respondent_id || "",
+      submitted_at: payload.submitted_at,
+      answers: payload.answers
+    }
   };
 }
 
@@ -71,6 +88,8 @@ function csvBuffer(record) {
   const headers = [
     "response_id",
     "received_at",
+    "company_code",
+    "response_code_hash",
     "survey",
     "language",
     "submitted_at",
@@ -79,10 +98,12 @@ function csvBuffer(record) {
   const row = [
     record.id,
     record.received_at,
+    record.company_code,
+    record.response_code_hash,
     record.response.survey,
     record.response.language,
     record.response.submitted_at,
-    ...headers.slice(5).map((id) => {
+    ...headers.slice(7).map((id) => {
       const value = record.response.answers[id];
       return Array.isArray(value) ? value.join(";") : value;
     })
@@ -105,19 +126,13 @@ function responseObjectNames(record) {
 }
 
 function respondentMarkerName(record) {
-  const respondentHash = crypto
-    .createHash("sha256")
-    .update(record.response.respondent_id)
-    .digest("hex");
-  return `respondents/${respondentHash}.json`;
+  return `respondents/${record.company_code}/${record.response_code_hash}.json`;
 }
 
 function respondentMarkerBuffer(record) {
   return Buffer.from(JSON.stringify({
-    respondent_hash: crypto
-      .createHash("sha256")
-      .update(record.response.respondent_id)
-      .digest("hex"),
+    company_code: record.company_code,
+    response_code_hash: record.response_code_hash,
     response_id: record.id,
     received_at: record.received_at
   }, null, 2), "utf8");

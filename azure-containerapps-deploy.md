@@ -15,9 +15,21 @@ Storage Account: <任意のストレージアカウント名>
 Blob Container: survey-responses
 JSON Blob Path: json/YYYY-MM-DD/<received_at>_<response_id>.json
 CSV Blob Path: csv/YYYY-MM-DD/<received_at>_<response_id>.csv
+Response Marker Path: respondents/<company_code>/<response_code_hash>.json
 ```
 
 回答者PCにもJSON/CSVをダウンロードできる補助出力を残している。Azure側では監査・正本用にJSON、集計・Excel/Power BI用にCSVを保存する。
+
+## 会社別URLと回答コード
+
+Container AppsのURLは1つだが、会社別に `company` クエリを付けたURLを配布する。
+
+```text
+https://<container-app-fqdn>/?company=jp-hq-7kx92
+https://<container-app-fqdn>/?company=th-company-q3m8a
+```
+
+各社担当者は社員へ回答コードを配布する。回答時には会社コードと回答コードの組み合わせをサーバー側でハッシュ化し、同じ組み合わせの再回答を拒否する。生の回答コードはBlobへ保存しない。
 
 ## 必要なAzureリソース
 
@@ -143,4 +155,4 @@ az storage blob list `
 - Blobへ保存されるJSONには、回答本文、受信日時、回答ID、User-Agent、`x-forwarded-for` が含まれる。
 - 生回答データにはAI利用実態やリスク情報が含まれるため、Storage AccountとContainer Appの権限は最小限にする。
 - Container Appsのコンテナ内ファイルは正本保存先にしない。
-- 同一ブラウザ/端末からの二重回答は、ブラウザに保存した `respondent_id` とBlob上の `respondents/` マーカーで防止する。別ブラウザ、別端末、localStorage削除まで含めて同一人物を厳密に判定する場合は、Entra IDなどのログイン認証を追加する。
+- 二重回答は、会社コードと回答コードのハッシュをBlob上の `respondents/` マーカーで防止する。ブラウザにも送信済み状態を保存し、同じ会社コードと回答コードでの再送信を画面上でも抑止する。
