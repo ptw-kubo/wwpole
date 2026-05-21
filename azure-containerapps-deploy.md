@@ -2,7 +2,7 @@
 
 ## 方針
 
-この実装では、アンケートHTMLをContainer Appsから配信し、回答送信時に `/api/responses` がAzure Blob Storageへ1回答1JSONで保存する。
+この実装では、アンケートHTMLをContainer Appsから配信し、回答送信時に `/api/responses` がAzure Blob Storageへ1回答ごとにJSONとCSVを保存する。
 
 ローカル実行時に `AZURE_STORAGE_ACCOUNT_NAME` を設定しない場合は、検証用に `data/responses` へ保存する。Azure本番ではBlob Storageを使う。
 
@@ -13,10 +13,11 @@ Azure上の保存先は以下。
 ```text
 Storage Account: <任意のストレージアカウント名>
 Blob Container: survey-responses
-Blob Path: YYYY-MM-DD/<received_at>_<response_id>.json
+JSON Blob Path: json/YYYY-MM-DD/<received_at>_<response_id>.json
+CSV Blob Path: csv/YYYY-MM-DD/<received_at>_<response_id>.csv
 ```
 
-CSVは回答者PCにダウンロードできる補助出力として残している。集約・分析の正本はBlobのJSON。
+回答者PCにもJSON/CSVをダウンロードできる補助出力を残している。Azure側では監査・正本用にJSON、集計・Excel/Power BI用にCSVを保存する。
 
 ## 必要なAzureリソース
 
@@ -132,6 +133,7 @@ Invoke-RestMethod "https://$url/healthz"
 az storage blob list `
   --account-name stwwpolesurvey001 `
   --container-name survey-responses `
+  --prefix csv/ `
   --auth-mode login `
   --output table
 ```

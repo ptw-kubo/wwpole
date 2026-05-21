@@ -88,12 +88,18 @@ function waitForServer(processHandle) {
     const saveBody = await save.json();
     await assert.equal(saveBody.ok, true);
     await assert.equal(saveBody.storage.kind, "local_file");
-    await assert.ok(fs.existsSync(saveBody.storage.path));
+    await assert.ok(fs.existsSync(saveBody.storage.json));
+    await assert.ok(fs.existsSync(saveBody.storage.csv));
 
-    const savedRecord = JSON.parse(fs.readFileSync(saveBody.storage.path, "utf8"));
+    const savedRecord = JSON.parse(fs.readFileSync(saveBody.storage.json, "utf8"));
     await assert.equal(savedRecord.response.survey, "global_ai_readiness_survey");
     await assert.equal(savedRecord.response.answers.q01, "japan_headquarters");
     await assert.deepEqual(savedRecord.response.answers.q08, ["writing", "summarization", "translation", "test_case_creation", "test_automation"]);
+
+    const savedCsv = fs.readFileSync(saveBody.storage.csv, "utf8");
+    await assert.match(savedCsv, /^"response_id","received_at","survey","language","submitted_at","q01"/);
+    await assert.match(savedCsv, /"global_ai_readiness_survey","ja"/);
+    await assert.match(savedCsv, /"writing;summarization;translation;test_case_creation;test_automation"/);
 
     const invalid = validPayload();
     delete invalid.answers.q19;

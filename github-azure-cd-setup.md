@@ -140,11 +140,12 @@ https://github.com/masayukick/wwpole/settings/variables/actions
 ```text
 Storage Account: GitHub variable AZURE_STORAGE_ACCOUNT_NAME
 Blob Container: survey-responses
-Blob Path: YYYY-MM-DD/<received_at>_<response_id>.json
+JSON Blob Path: json/YYYY-MM-DD/<received_at>_<response_id>.json
+CSV Blob Path: csv/YYYY-MM-DD/<received_at>_<response_id>.csv
 ```
 
 ## 5. 注意
 
 - `Role Based Access Control Administrator` をGitHub Actions用IDに付けたくない場合は、初回だけ手動でContainer AppのManaged Identityに `Storage Blob Data Contributor` を付与し、workflowの `Assign storage role to Container App identity` stepを削除または無効化する。
 - GitHub Actionsの認証はClient SecretではなくOIDCを使う。Secretにクライアントシークレットを置かない。
-- 本番回答データはBlobのJSONを正本とし、画面のCSV保存は回答者ローカル用の補助出力として扱う。
+- 本番回答データはBlobにJSONとCSVの両方を保存する。JSONは監査・正本用、CSVは集計・Excel/Power BI用として扱う。

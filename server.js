@@ -59,9 +59,41 @@ function jsonBuffer(record) {
   return Buffer.from(JSON.stringify(record, null, 2), "utf8");
 }
 
-function blobName(record) {
+function csvBuffer(record) {
+  const headers = [
+    "response_id",
+    "received_at",
+    "survey",
+    "language",
+    "submitted_at",
+    ...Array.from({ length: 20 }, (_, index) => `q${String(index + 1).padStart(2, "0")}`)
+  ];
+  const row = [
+    record.id,
+    record.received_at,
+    record.response.survey,
+    record.response.language,
+    record.response.submitted_at,
+    ...headers.slice(5).map((id) => {
+      const value = record.response.answers[id];
+      return Array.isArray(value) ? value.join(";") : value;
+    })
+  ];
+  const escapeCell = (value) => `"${String(value ?? "").replaceAll('"', '""')}"`;
+  return Buffer.from(`${headers.map(escapeCell).join(",")}\r\n${row.map(escapeCell).join(",")}\r\n`, "utf8");
+}
+
+function baseResponseName(record) {
   const date = record.received_at.slice(0, 10);
-  return `${date}/${record.received_at.replaceAll(":", "-")}_${record.id}.json`;
+  return `${date}/${record.received_at.replaceAll(":", "-")}_${record.id}`;
+}
+
+function responseObjectNames(record) {
+  const baseName = baseResponseName(record);
+  return {
+    json: `json/${baseName}.json`,
+    csv: `csv/${baseName}.csv`
+  };
 }
 
 async function saveToAzureBlob(record) {
@@ -72,23 +104,32 @@ async function saveToAzureBlob(record) {
   );
   const containerClient = blobServiceClient.getContainerClient(storageContainerName);
   await containerClient.createIfNotExists();
-  const name = blobName(record);
-  await containerClient.getBlockBlobClient(name).uploadData(jsonBuffer(record), {
+  const names = responseObjectNames(record);
+  await containerClient.getBlockBlobClient(names.json).uploadData(jsonBuffer(record), {
     blobHTTPHeaders: { blobContentType: "application/json; charset=utf-8" },
     metadata: {
       survey: "global_ai_readiness_survey",
       language: record.response.language
     }
   });
-  return { kind: "azure_blob", container: storageContainerName, name };
+  await containerClient.getBlockBlobClient(names.csv).uploadData(csvBuffer(record), {
+    blobHTTPHeaders: { blobContentType: "text/csv; charset=utf-8" },
+    metadata: {
+      survey: "global_ai_readiness_survey",
+      language: record.response.language
+    }
+  });
+  return { kind: "azure_blob", container: storageContainerName, json: names.json, csv: names.csv };
 }
 
 async function saveToLocalFile(record) {
   await fs.mkdir(localResponseDir, { recursive: true });
-  const name = blobName(record).replace(/\//g, "_");
-  const filePath = path.join(localResponseDir, name);
-  await fs.writeFile(filePath, jsonBuffer(record));
-  return { kind: "local_file", path: filePath };
+  const names = responseObjectNames(record);
+  const jsonPath = path.join(localResponseDir, names.json.replace(/\//g, "_"));
+  const csvPath = path.join(localResponseDir, names.csv.replace(/\//g, "_"));
+  await fs.writeFile(jsonPath, jsonBuffer(record));
+  await fs.writeFile(csvPath, csvBuffer(record));
+  return { kind: "local_file", json: jsonPath, csv: csvPath };
 }
 
 async function saveRecord(record) {
