@@ -42,6 +42,28 @@ jobs:
       - name: Run tests
         run: npm run test:all
 
+      - name: Validate GitHub Actions configuration
+        shell: bash
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_ACR_NAME: ${{ vars.AZURE_ACR_NAME }}
+          AZURE_STORAGE_ACCOUNT_NAME: ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}
+        run: |
+          set -euo pipefail
+
+          missing=0
+          for name in AZURE_CLIENT_ID AZURE_TENANT_ID AZURE_ACR_NAME AZURE_STORAGE_ACCOUNT_NAME; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::$name is not set. Configure it in GitHub repository Settings > Secrets and variables > Actions."
+              missing=1
+            fi
+          done
+
+          if [ "$missing" = "1" ]; then
+            exit 1
+          fi
+
       - name: Azure login
         uses: azure/login@v3
         with:

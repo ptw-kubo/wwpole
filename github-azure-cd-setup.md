@@ -81,6 +81,46 @@ AZURE_CLIENT_ID = $appId
 AZURE_TENANT_ID = az account show --query tenantId --output tsv の値
 ```
 
+PowerShellで値を表示する例。
+
+```powershell
+"AZURE_CLIENT_ID=$appId"
+"AZURE_TENANT_ID=$(az account show --query tenantId --output tsv)"
+```
+
+GitHub画面での設定先:
+
+```text
+https://github.com/masayukick/wwpole/settings/secrets/actions
+```
+
+`AZURE_CLIENT_ID` と `AZURE_TENANT_ID` は必ず `Secrets` に作成する。`Variables` に作成しても `azure/login` には渡らない。
+
+`AZURE_ACR_NAME` と `AZURE_STORAGE_ACCOUNT_NAME` は以下に `Variables` として作成する。
+
+```text
+https://github.com/masayukick/wwpole/settings/variables/actions
+```
+
+## 2.1 よくあるエラー
+
+### `Not all values are present. Ensure 'client-id' and 'tenant-id' are supplied.`
+
+原因:
+
+- GitHub Actions Secret `AZURE_CLIENT_ID` が未設定
+- GitHub Actions Secret `AZURE_TENANT_ID` が未設定
+- Secret名のスペルが違う
+- Repository SecretではなくEnvironment Secretにだけ作成している
+- SecretではなくVariableに作成している
+
+対処:
+
+1. `Settings > Secrets and variables > Actions > Secrets` を開く。
+2. `AZURE_CLIENT_ID` と `AZURE_TENANT_ID` がRepository secretsに存在することを確認する。
+3. なければ上記のPowerShell出力値を登録する。
+4. Actionsを再実行する。
+
 ## 3. Push後の流れ
 
 `main` ブランチにpushすると以下を実行する。
