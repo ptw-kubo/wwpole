@@ -11,9 +11,54 @@ const root = __dirname;
 const localResponseDir = process.env.LOCAL_RESPONSE_DIR || path.join(root, "data", "responses");
 const storageAccountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
 const storageContainerName = process.env.AZURE_STORAGE_CONTAINER_NAME || "survey-responses";
+const basicAuthUsername = process.env.BASIC_AUTH_USERNAME || "";
+const basicAuthPassword = process.env.BASIC_AUTH_PASSWORD || "";
 const maxPayloadBytes = 64 * 1024;
 
 app.disable("x-powered-by");
+
+if ((basicAuthUsername && !basicAuthPassword) || (!basicAuthUsername && basicAuthPassword)) {
+  throw new Error("BASIC_AUTH_USERNAME and BASIC_AUTH_PASSWORD must be set together.");
+}
+
+function safeEqual(left, right) {
+  const leftBuffer = Buffer.from(left);
+  const rightBuffer = Buffer.from(right);
+  return leftBuffer.length === rightBuffer.length && crypto.timingSafeEqual(leftBuffer, rightBuffer);
+}
+
+function parseBasicAuth(header) {
+  if (!header || !header.startsWith("Basic ")) return null;
+  const decoded = Buffer.from(header.slice(6), "base64").toString("utf8");
+  const separatorIndex = decoded.indexOf(":");
+  if (separatorIndex < 0) return null;
+  return {
+    username: decoded.slice(0, separatorIndex),
+    password: decoded.slice(separatorIndex + 1)
+  };
+}
+
+function basicAuth(request, response, next) {
+  if (!basicAuthUsername && !basicAuthPassword) {
+    next();
+    return;
+  }
+
+  const credentials = parseBasicAuth(request.get("authorization"));
+  if (
+    credentials
+    && safeEqual(credentials.username, basicAuthUsername)
+    && safeEqual(credentials.password, basicAuthPassword)
+  ) {
+    next();
+    return;
+  }
+
+  response.set("WWW-Authenticate", 'Basic realm="Global AI Readiness Survey", charset="UTF-8"');
+  response.status(401).send("Authentication required.");
+}
+
+app.use(basicAuth);
 app.use(express.json({ limit: `${maxPayloadBytes}b` }));
 
 class DuplicateSubmissionError extends Error {

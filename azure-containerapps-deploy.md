@@ -50,6 +50,8 @@ Container Appに設定する。
 | `PORT` | `8080` |
 | `AZURE_STORAGE_ACCOUNT_NAME` | 作成したStorage Account名 |
 | `AZURE_STORAGE_CONTAINER_NAME` | `survey-responses` |
+| `BASIC_AUTH_USERNAME` | BASIC認証ユーザー名 |
+| `BASIC_AUTH_PASSWORD` | BASIC認証パスワード。AzureではContainer Apps Secretから参照する |
 
 ## Azure CLI 実行例
 
@@ -106,7 +108,9 @@ az containerapp create `
   --env-vars `
     PORT=8080 `
     AZURE_STORAGE_ACCOUNT_NAME=$storage `
-    AZURE_STORAGE_CONTAINER_NAME=$container
+    AZURE_STORAGE_CONTAINER_NAME=$container `
+    BASIC_AUTH_USERNAME="survey" `
+    BASIC_AUTH_PASSWORD="<BASIC認証パスワード>"
 
 $principalId = az containerapp show `
   --resource-group $rg `
@@ -138,6 +142,14 @@ $url = az containerapp show `
 Invoke-RestMethod "https://$url/healthz"
 ```
 
+BASIC認証を有効にしている場合は、認証情報付きで確認する。
+
+```powershell
+$pair = "survey:<BASIC認証パスワード>"
+$encoded = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($pair))
+Invoke-RestMethod "https://$url/healthz" -Headers @{ Authorization = "Basic $encoded" }
+```
+
 画面から回答を送信した後、Blobを確認する。
 
 ```powershell
@@ -152,6 +164,7 @@ az storage blob list `
 ## 注意
 
 - Blobへ保存されるJSONには、回答本文、受信日時、回答ID、User-Agent、`x-forwarded-for` が含まれる。
+- BASIC認証のパスワードはコードや通常の環境変数に直接残さず、GitHub SecretsとContainer Apps Secretで管理する。
 - 生回答データにはAI利用実態やリスク情報が含まれるため、Storage AccountとContainer Appの権限は最小限にする。
 - Container Appsのコンテナ内ファイルは正本保存先にしない。
 - 二重回答は、保存済みJSON内の会社コードと回答コードハッシュを確認して防止する。ブラウザにも送信済み状態を保存し、同じ会社コードと回答コードでの再送信を画面上でも抑止する。

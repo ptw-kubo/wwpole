@@ -49,11 +49,13 @@ jobs:
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_ACR_NAME: ${{ vars.AZURE_ACR_NAME }}
           AZURE_STORAGE_ACCOUNT_NAME: ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}
+          BASIC_AUTH_USERNAME: ${{ vars.BASIC_AUTH_USERNAME }}
+          BASIC_AUTH_PASSWORD: ${{ secrets.BASIC_AUTH_PASSWORD }}
         run: |
           set -euo pipefail
 
           missing=0
-          for name in AZURE_CLIENT_ID AZURE_TENANT_ID AZURE_ACR_NAME AZURE_STORAGE_ACCOUNT_NAME; do
+          for name in AZURE_CLIENT_ID AZURE_TENANT_ID AZURE_ACR_NAME AZURE_STORAGE_ACCOUNT_NAME BASIC_AUTH_USERNAME BASIC_AUTH_PASSWORD; do
             if [ -z "${!name:-}" ]; then
               echo "::error::$name is not set. Configure it in GitHub repository Settings > Secrets and variables > Actions."
               missing=1
@@ -134,6 +136,8 @@ jobs:
         env:
           AZURE_ACR_NAME: ${{ vars.AZURE_ACR_NAME }}
           AZURE_STORAGE_ACCOUNT_NAME: ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}
+          BASIC_AUTH_USERNAME: ${{ vars.BASIC_AUTH_USERNAME }}
+          BASIC_AUTH_PASSWORD: ${{ secrets.BASIC_AUTH_PASSWORD }}
         run: |
           set -euo pipefail
 
@@ -214,6 +218,11 @@ jobs:
             --name "$AZURE_CONTAINER_APP_NAME" \
             --target-port 8080
 
+          az containerapp secret set \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_CONTAINER_APP_NAME" \
+            --secrets basic-auth-password="$BASIC_AUTH_PASSWORD"
+
           az containerapp update \
             --resource-group "$AZURE_RESOURCE_GROUP" \
             --name "$AZURE_CONTAINER_APP_NAME" \
@@ -221,7 +230,9 @@ jobs:
             --set-env-vars \
               PORT=8080 \
               AZURE_STORAGE_ACCOUNT_NAME="$AZURE_STORAGE_ACCOUNT_NAME" \
-              AZURE_STORAGE_CONTAINER_NAME="$AZURE_STORAGE_CONTAINER_NAME"
+              AZURE_STORAGE_CONTAINER_NAME="$AZURE_STORAGE_CONTAINER_NAME" \
+              BASIC_AUTH_USERNAME="$BASIC_AUTH_USERNAME" \
+              BASIC_AUTH_PASSWORD=secretref:basic-auth-password
 
       - name: Show app URL
         shell: bash

@@ -7,6 +7,7 @@ const root = __dirname;
 const port = 18080;
 const baseUrl = `http://127.0.0.1:${port}`;
 const responseDir = path.join(root, "test-results", "server-api", "responses");
+const basicAuth = `Basic ${Buffer.from("survey-user:survey-pass").toString("base64")}`;
 
 fs.rmSync(path.join(root, "test-results", "server-api"), { recursive: true, force: true });
 fs.mkdirSync(responseDir, { recursive: true });
@@ -70,7 +71,9 @@ function waitForServer(processHandle) {
       ...process.env,
       PORT: String(port),
       LOCAL_RESPONSE_DIR: responseDir,
-      AZURE_STORAGE_ACCOUNT_NAME: ""
+      AZURE_STORAGE_ACCOUNT_NAME: "",
+      BASIC_AUTH_USERNAME: "survey-user",
+      BASIC_AUTH_PASSWORD: "survey-pass"
     },
     stdio: ["ignore", "pipe", "pipe"]
   });
@@ -78,13 +81,19 @@ function waitForServer(processHandle) {
   try {
     await waitForServer(server);
 
-    const health = await fetch(`${baseUrl}/healthz`);
+    const unauthorized = await fetch(`${baseUrl}/healthz`);
+    await assert.equal(unauthorized.status, 401);
+    await assert.match(unauthorized.headers.get("www-authenticate"), /^Basic /);
+
+    const health = await fetch(`${baseUrl}/healthz`, {
+      headers: { Authorization: basicAuth }
+    });
     await assert.equal(health.status, 200);
     await assert.deepEqual(await health.json(), { ok: true, storage: "local_file" });
 
     const save = await fetch(`${baseUrl}/api/responses`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { Authorization: basicAuth, "Content-Type": "application/json" },
       body: JSON.stringify(validPayload())
     });
     await assert.equal(save.status, 201);
@@ -114,7 +123,7 @@ function waitForServer(processHandle) {
 
     const duplicate = await fetch(`${baseUrl}/api/responses`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { Authorization: basicAuth, "Content-Type": "application/json" },
       body: JSON.stringify(validPayload())
     });
     await assert.equal(duplicate.status, 409);
@@ -124,7 +133,7 @@ function waitForServer(processHandle) {
     delete invalid.answers.q19;
     const invalidResponse = await fetch(`${baseUrl}/api/responses`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { Authorization: basicAuth, "Content-Type": "application/json" },
       body: JSON.stringify(invalid)
     });
     await assert.equal(invalidResponse.status, 400);
