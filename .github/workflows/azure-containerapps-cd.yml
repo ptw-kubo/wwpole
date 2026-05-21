@@ -1,0 +1,160 @@
+name: Deploy to Azure Container Apps
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AZURE_SUBSCRIPTION_ID: 0f4a98a5-c6ea-4c90-90e9-9c105c22750c
+  AZURE_RESOURCE_GROUP: rg-dev-wwpole
+  AZURE_LOCATION: japaneast
+  AZURE_CONTAINER_APP_NAME: ca-global-ai-readiness-survey
+  AZURE_CONTAINER_APP_ENVIRONMENT: cae-wwpole-dev
+  AZURE_STORAGE_CONTAINER_NAME: survey-responses
+
+jobs:
+  test-build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install chromium --with-deps
+
+      - name: Run tests
+        run: npm run test:all
+
+      - name: Azure login
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Ensure Azure resources
+        shell: bash
+        env:
+          AZURE_ACR_NAME: ${{ vars.AZURE_ACR_NAME }}
+          AZURE_STORAGE_ACCOUNT_NAME: ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}
+        run: |
+          set -euo pipefail
+
+          : "${AZURE_ACR_NAME:?Set repository variable AZURE_ACR_NAME}"
+          : "${AZURE_STORAGE_ACCOUNT_NAME:?Set repository variable AZURE_STORAGE_ACCOUNT_NAME}"
+
+          az account set --subscription "$AZURE_SUBSCRIPTION_ID"
+
+          if ! az acr show \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_ACR_NAME" >/dev/null 2>&1; then
+            az acr create \
+              --resource-group "$AZURE_RESOURCE_GROUP" \
+              --name "$AZURE_ACR_NAME" \
+              --sku Basic
+          fi
+
+          if ! az storage account show \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_STORAGE_ACCOUNT_NAME" >/dev/null 2>&1; then
+            az storage account create \
+              --resource-group "$AZURE_RESOURCE_GROUP" \
+              --name "$AZURE_STORAGE_ACCOUNT_NAME" \
+              --location "$AZURE_LOCATION" \
+              --sku Standard_LRS \
+              --kind StorageV2
+          fi
+
+          az storage container create \
+            --account-name "$AZURE_STORAGE_ACCOUNT_NAME" \
+            --name "$AZURE_STORAGE_CONTAINER_NAME"
+
+          if ! az containerapp env show \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_CONTAINER_APP_ENVIRONMENT" >/dev/null 2>&1; then
+            az containerapp env create \
+              --resource-group "$AZURE_RESOURCE_GROUP" \
+              --name "$AZURE_CONTAINER_APP_ENVIRONMENT" \
+              --location "$AZURE_LOCATION"
+          fi
+
+      - name: Build and deploy Container App
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          appSourcePath: ${{ github.workspace }}
+          dockerfilePath: Dockerfile
+          acrName: ${{ vars.AZURE_ACR_NAME }}
+          containerAppName: ${{ env.AZURE_CONTAINER_APP_NAME }}
+          resourceGroup: ${{ env.AZURE_RESOURCE_GROUP }}
+          containerAppEnvironment: ${{ env.AZURE_CONTAINER_APP_ENVIRONMENT }}
+          imageToBuild: ${{ vars.AZURE_ACR_NAME }}.azurecr.io/global-ai-readiness-survey:${{ github.sha }}
+          targetPort: 8080
+          ingress: external
+          environmentVariables: >-
+            PORT=8080
+            AZURE_STORAGE_ACCOUNT_NAME=${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}
+            AZURE_STORAGE_CONTAINER_NAME=${{ env.AZURE_STORAGE_CONTAINER_NAME }}
+
+      - name: Assign storage role to Container App identity
+        shell: bash
+        env:
+          AZURE_STORAGE_ACCOUNT_NAME: ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}
+        run: |
+          set -euo pipefail
+
+          az containerapp identity assign \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_CONTAINER_APP_NAME" \
+            --system-assigned
+
+          principal_id="$(az containerapp show \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_CONTAINER_APP_NAME" \
+            --query identity.principalId \
+            --output tsv)"
+
+          storage_id="$(az storage account show \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_STORAGE_ACCOUNT_NAME" \
+            --query id \
+            --output tsv)"
+
+          existing_assignment="$(az role assignment list \
+            --assignee "$principal_id" \
+            --role "Storage Blob Data Contributor" \
+            --scope "$storage_id" \
+            --query "length(@)" \
+            --output tsv)"
+
+          if [ "$existing_assignment" = "0" ]; then
+            az role assignment create \
+              --assignee "$principal_id" \
+              --role "Storage Blob Data Contributor" \
+              --scope "$storage_id"
+          fi
+
+      - name: Show app URL
+        shell: bash
+        run: |
+          fqdn="$(az containerapp show \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_CONTAINER_APP_NAME" \
+            --query properties.configuration.ingress.fqdn \
+            --output tsv)"
+          echo "https://$fqdn"

@@ -1,0 +1,25 @@
+{
+  "name": "mspole",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node survey_playwright_smoke_test.js",
+    "test:server": "node survey_server_api_test.js",
+    "test:all": "npm test && npm run test:server",
+    "simulate": "node generate_simulated_survey_analysis.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.13.1",
+    "@azure/storage-blob": "^12.31.0",
+    "express": "^5.2.1"
+  }
+}

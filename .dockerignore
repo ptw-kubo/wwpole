@@ -1,0 +1,8 @@
+node_modules
+npm-debug.log
+test-results
+data
+*.md
+survey_playwright_smoke_test.js
+survey_server_api_test.js
+generate_simulated_survey_analysis.js

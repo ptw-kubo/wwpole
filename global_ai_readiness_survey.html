@@ -1,0 +1,1109 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Global AI Readiness Survey</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #18212f;
+      --muted: #5d6979;
+      --line: #d8dee8;
+      --accent: #0f766e;
+      --accent-dark: #115e59;
+      --accent-soft: #e7f5f2;
+      --warn: #9a3412;
+      --warn-soft: #fff3e8;
+      --shadow: 0 16px 40px rgba(24, 33, 47, 0.08);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", "Yu Gothic UI", "Microsoft YaHei", "Meiryo", system-ui, sans-serif;
+      line-height: 1.65;
+    }
+
+    header {
+      background: #172033;
+      color: #fff;
+      border-bottom: 5px solid var(--accent);
+    }
+
+    .header-inner {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: #b9d6d2;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.55rem, 2.4vw, 2.2rem);
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .header-copy {
+      max-width: 860px;
+      margin: 14px 0 0;
+      color: #d9e1ec;
+      font-size: 0.98rem;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 24px auto 56px;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    aside, .intro, fieldset, .actions, .result-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    aside {
+      position: sticky;
+      top: 16px;
+      padding: 18px;
+    }
+
+    .language-switcher {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .lang-button {
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: #203047;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .lang-button.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .status-title {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .progress {
+      height: 12px;
+      background: #e6eaf0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: var(--accent);
+      transition: width 180ms ease;
+    }
+
+    .progress-text, .hint, .counter {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .notice {
+      margin-top: 18px;
+      padding: 14px;
+      background: var(--warn-soft);
+      border: 1px solid #fed7aa;
+      border-radius: var(--radius);
+      color: #5f2a0a;
+      font-size: 0.9rem;
+    }
+
+    .notice strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--warn);
+    }
+
+    .intro {
+      padding: 22px 24px;
+      margin-bottom: 18px;
+    }
+
+    .intro h2, .result-panel h2 {
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+    }
+
+    .intro p, .result-panel p {
+      margin: 8px 0;
+      color: var(--muted);
+    }
+
+    fieldset {
+      margin: 0 0 18px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    legend {
+      width: 100%;
+      padding: 14px 20px;
+      background: #eef4f8;
+      border-bottom: 1px solid var(--line);
+      font-weight: 800;
+      color: #203047;
+    }
+
+    .question {
+      padding: 20px;
+      border-bottom: 1px solid #edf0f4;
+    }
+
+    .question:last-child { border-bottom: 0; }
+
+    .question-head {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .num {
+      flex: 0 0 auto;
+      min-width: 36px;
+      height: 30px;
+      display: inline-grid;
+      place-items: center;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      border: 1px solid #b6ded8;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.88rem;
+    }
+
+    .question-title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .meta {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .options {
+      display: grid;
+      gap: 8px;
+    }
+
+    .option {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .option:hover {
+      border-color: #9fb1c6;
+      background: #fbfcfe;
+    }
+
+    input[type="radio"], input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 3px;
+      accent-color: var(--accent);
+      flex: 0 0 auto;
+    }
+
+    input:focus-visible, textarea:focus-visible, button:focus-visible {
+      outline: 3px solid rgba(37, 99, 235, 0.35);
+      outline-offset: 2px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      font: inherit;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    .error {
+      margin: 8px 0 0;
+      color: #b91c1c;
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .actions {
+      padding: 18px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .action-button {
+      min-height: 42px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      padding: 0 16px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .primary:hover { background: var(--accent-dark); }
+
+    .secondary {
+      background: #fff;
+      color: #203047;
+      border-color: var(--line);
+    }
+
+    .secondary:hover { background: #f1f5f9; }
+
+    .result-panel {
+      display: none;
+      margin-top: 18px;
+      padding: 18px;
+    }
+
+    .result-panel.active { display: block; }
+
+    .download-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+      aside { position: static; }
+    }
+
+    @media (max-width: 560px) {
+      .header-inner, main { width: min(100% - 20px, 1120px); }
+      .intro, .question, .actions, .result-panel { padding: 16px; }
+      .actions { justify-content: stretch; }
+      .action-button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <p class="eyebrow">Global AI Readiness Benchmark</p>
+      <h1 id="pageTitle"></h1>
+      <p class="header-copy" id="pageLead"></p>
+    </div>
+  </header>
+
+  <main>
+    <aside aria-label="Survey controls">
+      <div class="language-switcher" id="languageSwitcher"></div>
+      <p class="status-title" id="progressTitle"></p>
+      <div class="progress" aria-hidden="true">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <p class="progress-text" id="progressText"></p>
+      <div class="notice">
+        <strong id="noticeTitle"></strong>
+        <span id="noticeBody"></span>
+      </div>
+    </aside>
+
+    <form id="surveyForm" novalidate>
+      <section class="intro" aria-labelledby="introTitle">
+        <h2 id="introTitle"></h2>
+        <p id="introP1"></p>
+        <p id="introP2"></p>
+        <p id="introP3"></p>
+      </section>
+
+      <div id="questionContainer"></div>
+
+      <div class="actions">
+        <button class="action-button secondary" type="button" id="clearButton"></button>
+        <button class="action-button primary" type="submit" id="submitButton"></button>
+      </div>
+
+      <section class="result-panel" id="resultPanel" aria-live="polite">
+        <h2 id="resultTitle"></h2>
+        <p id="resultBody"></p>
+        <div class="download-row">
+          <button class="action-button primary" type="button" id="downloadJson"></button>
+          <button class="action-button secondary" type="button" id="downloadCsv"></button>
+        </div>
+      </section>
+    </form>
+  </main>
+
+  <script>
+    const languages = [
+      { code: "ja", label: "日本語", htmlLang: "ja" },
+      { code: "en", label: "English", htmlLang: "en" },
+      { code: "zh", label: "中文", htmlLang: "zh-CN" },
+      { code: "es", label: "Español", htmlLang: "es" }
+    ];
+
+    const sections = [
+      { id: "profile", questions: ["q01", "q02", "q03", "q04"] },
+      { id: "usage", questions: ["q05", "q06", "q07", "q08"] },
+      { id: "risk", questions: ["q09", "q10", "q11", "q12"] },
+      { id: "impact", questions: ["q13", "q14", "q15", "q16", "q17"] },
+      { id: "needs", questions: ["q18", "q19", "q20"] }
+    ];
+
+    const questions = {
+      q01: { type: "single", required: true, options: ["japan_headquarters", "domestic_subsidiary", "overseas_subsidiary", "other"] },
+      q02: { type: "single", required: true, options: ["japan", "asia_pacific", "north_america", "europe", "other"] },
+      q03: { type: "single", required: true, options: ["corporate_planning", "sales", "marketing", "hr", "accounting_finance", "legal", "it", "development_engineering", "qa_testing", "customer_support", "bpo_operations", "administration", "other"] },
+      q04: { type: "single", required: true, options: ["executive", "department_head", "manager", "leader", "member", "other"] },
+      q05: { type: "single", required: true, options: ["using", "trial_use", "used_before_not_now", "not_using", "not_using_due_to_ban_or_unclear_rules"] },
+      q06: { type: "single", required: true, options: ["daily", "several_times_week", "several_times_month", "rarely", "not_using"] },
+      q07: { type: "multi", required: true, options: ["chatgpt", "microsoft_copilot", "google_gemini", "claude", "perplexity", "internal_ai_chatbot", "translation_ai", "meeting_minutes_ai", "code_generation_ai", "other", "not_using"] },
+      q08: { type: "multi", required: true, max: 5, options: ["writing", "summarization", "translation", "email_writing", "meeting_minutes", "research", "proposal_creation", "contract_review_support", "data_analysis", "code_generation", "code_review", "specification_creation", "test_case_creation", "test_automation", "inquiry_response", "faq_creation", "image_video_content_creation", "other", "not_using"] },
+      q09: { type: "multi", required: true, options: ["public_information_only", "internal_general_information", "internal_confidential_information", "customer_provided_materials", "personal_information", "contracts", "financial_information", "source_code", "specifications_design_docs", "incident_defect_information", "do_not_remember", "not_using"] },
+      q10: { type: "single", required: true, options: ["company_approved_tool", "department_decision", "personal_decision", "approval_status_unknown", "not_using"] },
+      q11: { type: "single", required: true, options: ["fully_understand", "mostly_understand", "do_not_understand_much", "do_not_understand_at_all", "do_not_know_if_rules_exist"] },
+      q12: { type: "multi", required: true, max: 3, options: ["confidential_information_leakage", "personal_information_leakage", "customer_contract_violation", "copyright_infringement", "answer_accuracy", "responsibility_for_output", "usage_log_management", "internal_rules_unclear", "cannot_explain_to_customers", "no_concern", "other"] },
+      q13: { type: "single", required: true, options: ["reduced_30_percent_or_more", "reduced_10_to_30_percent", "reduced_5_to_10_percent", "reduced_less_than_5_percent", "no_effect_felt", "more_effort_required", "cannot_judge", "not_using"] },
+      q14: { type: "single", required: true, options: ["greatly_improved", "somewhat_improved", "slightly_improved", "unchanged", "declined", "cannot_judge", "not_using"] },
+      q15: { type: "single", required: true, options: ["personal_trial_only", "supportive_use_in_some_tasks", "standard_team_work", "formal_department_process", "essential_to_work", "not_using"] },
+      q16: { type: "single", required: true, options: ["executives_clearly_promote", "department_heads_managers_promote", "some_leaders_promote", "left_to_frontline", "cautious_or_restrictive", "do_not_know"] },
+      q17: { type: "single", required: true, options: ["company_official_training", "department_training", "external_training", "self_learning", "no_training", "do_not_know_if_training_exists"] },
+      q18: { type: "single", required: true, options: ["strongly_want_to_use", "want_to_use", "depends_on_conditions", "do_not_really_want_to_use", "do_not_want_to_use", "cannot_judge"] },
+      q19: { type: "multi", required: true, max: 5, options: ["secure_chat_ai", "internal_document_search", "translation", "summarization", "meeting_minutes", "proposal_creation_support", "contract_review_support", "code_generation", "test_design_support", "faq_creation", "customer_response_support", "data_analysis", "business_system_integration", "ai_agent_task_automation", "other"] },
+      q20: { type: "text", required: false, maxLength: 300 }
+    };
+
+    const i18n = {
+      ja: {
+        ui: {
+          title: "グローバルAI導入状況サーベイ",
+          lead: "全社のエンタープライズLLM導入計画、教育計画、セキュリティ設計、利用ルール整備の参考とするための調査です。",
+          progressTitle: "回答状況",
+          progress: "{answered} / {total} 問",
+          noticeTitle: "機密情報は記載しないでください",
+          noticeBody: "自由記述欄には、顧客名、個人名、案件名、契約情報、未公開財務情報、ソースコード、顧客資料の内容、その他機密情報を記載しないでください。",
+          introTitle: "回答前の確認",
+          introP1: "本調査は、個人の評価・監視を目的とするものではありません。",
+          introP2: "回答結果は、会社・国・部門単位で集計し、個人が特定される形では報告しません。",
+          introP3: "Q1〜Q19は必須です。Q20は任意ですが、記入する場合は一般化した業務課題のみを記載してください。",
+          single: "単一選択",
+          multi: "複数選択",
+          max: "最大{max}つ",
+          textMeta: "自由記述、任意、300文字以内",
+          requiredError: "この設問は必須です。",
+          maxError: "最大{max}つまで選択できます。",
+          clear: "入力をクリア",
+          submit: "回答データを作成",
+          resultTitle: "回答データを作成しました",
+          resultBody: "回答データを管理された保存先へ送信しました。必要に応じて、JSONまたはCSVも手元に保存できます。",
+          resultLocalOnly: "この実行環境ではサーバー送信を行いません。必要に応じて、生成されたJSONまたはCSVを管理された保存先に格納してください。",
+          resultSaveFailed: "回答データのサーバー保存に失敗しました。通信状態を確認して再度実行してください。",
+          downloadJson: "JSONを保存",
+          downloadCsv: "CSVを保存",
+          placeholder: "例：社内規程や過去資料を探す時間を減らしたい",
+          confidentialHint: "顧客名、個人名、案件名、契約情報、未公開財務情報、ソースコード、顧客資料の内容、その他機密情報は記載しないでください。",
+          counter: "{count} / 300 文字"
+        },
+        sections: {
+          profile: "A. 回答者属性",
+          usage: "B. AI利用実態",
+          risk: "C. リスク・ガバナンス",
+          impact: "D. 効果・成熟度",
+          needs: "E. ニーズ・自由記述"
+        }
+      },
+      en: {
+        ui: {
+          title: "Global AI Readiness Survey",
+          lead: "This survey supports enterprise LLM planning, training, security design, and usage-rule development across the group.",
+          progressTitle: "Progress",
+          progress: "{answered} / {total} questions",
+          noticeTitle: "Do not enter confidential information",
+          noticeBody: "Do not enter customer names, personal names, project names, contract information, non-public financial information, source code, customer materials, or other confidential information in free-text fields.",
+          introTitle: "Before You Respond",
+          introP1: "This survey is not intended for individual evaluation or monitoring.",
+          introP2: "Results will be aggregated by company, country or region, and department. Reports will not identify individuals.",
+          introP3: "Q1 to Q19 are required. Q20 is optional; if you answer it, describe only a generalized business issue.",
+          single: "Single choice",
+          multi: "Multiple choice",
+          max: "Up to {max}",
+          textMeta: "Free text, optional, up to 300 characters",
+          requiredError: "This question is required.",
+          maxError: "Select up to {max} options.",
+          clear: "Clear responses",
+          submit: "Create response data",
+          resultTitle: "Response data created",
+          resultBody: "Response data has been sent to the managed storage destination. You can also save JSON or CSV locally as needed.",
+          resultLocalOnly: "This environment does not send data to a server. Store the generated JSON or CSV in a controlled location as needed.",
+          resultSaveFailed: "Failed to save the response data to the server. Check the network status and try again.",
+          downloadJson: "Save JSON",
+          downloadCsv: "Save CSV",
+          placeholder: "Example: Reduce the time spent searching internal policies and past documents",
+          confidentialHint: "Do not enter customer names, personal names, project names, contract information, non-public financial information, source code, customer materials, or other confidential information.",
+          counter: "{count} / 300 characters"
+        },
+        sections: {
+          profile: "A. Respondent Profile",
+          usage: "B. AI Usage",
+          risk: "C. Risk and Governance",
+          impact: "D. Impact and Maturity",
+          needs: "E. Needs and Free Text"
+        }
+      },
+      zh: {
+        ui: {
+          title: "全球 AI 就绪度调查",
+          lead: "本调查用于支持集团范围内的企业级 LLM 导入计划、培训计划、安全设计和使用规则制定。",
+          progressTitle: "回答进度",
+          progress: "{answered} / {total} 题",
+          noticeTitle: "请勿填写机密信息",
+          noticeBody: "请勿在自由填写栏中输入客户名称、个人姓名、项目名称、合同信息、未公开财务信息、源代码、客户资料内容或其他机密信息。",
+          introTitle: "回答前确认",
+          introP1: "本调查不用于个人评价或监控。",
+          introP2: "回答结果将按公司、国家或地区、部门进行汇总，不会以可识别个人的形式报告。",
+          introP3: "Q1 至 Q19 为必答题。Q20 为选答题，如填写，请仅描述一般化的业务课题。",
+          single: "单选",
+          multi: "多选",
+          max: "最多 {max} 项",
+          textMeta: "自由填写，选答，300 字以内",
+          requiredError: "此题为必答题。",
+          maxError: "最多可选择 {max} 项。",
+          clear: "清除输入",
+          submit: "生成回答数据",
+          resultTitle: "回答数据已生成",
+          resultBody: "回答数据已发送到受控保存位置。也可以根据需要在本地保存 JSON 或 CSV。",
+          resultLocalOnly: "此环境不会向服务器发送数据。请根据需要将生成的 JSON 或 CSV 保存到受控位置。",
+          resultSaveFailed: "回答数据保存到服务器失败。请检查网络状态后重试。",
+          downloadJson: "保存 JSON",
+          downloadCsv: "保存 CSV",
+          placeholder: "例：减少查找内部规程和历史资料所花费的时间",
+          confidentialHint: "请勿填写客户名称、个人姓名、项目名称、合同信息、未公开财务信息、源代码、客户资料内容或其他机密信息。",
+          counter: "{count} / 300 字"
+        },
+        sections: {
+          profile: "A. 回答者属性",
+          usage: "B. AI 使用情况",
+          risk: "C. 风险与治理",
+          impact: "D. 效果与成熟度",
+          needs: "E. 需求与自由填写"
+        }
+      },
+      es: {
+        ui: {
+          title: "Encuesta Global de Preparación para IA",
+          lead: "Esta encuesta ayuda a planificar la adopción de LLM empresarial, la capacitación, el diseño de seguridad y las reglas de uso en todo el grupo.",
+          progressTitle: "Progreso",
+          progress: "{answered} / {total} preguntas",
+          noticeTitle: "No introduzca información confidencial",
+          noticeBody: "No introduzca nombres de clientes, nombres de personas, nombres de proyectos, información contractual, información financiera no pública, código fuente, materiales de clientes ni otra información confidencial en campos de texto libre.",
+          introTitle: "Antes de responder",
+          introP1: "Esta encuesta no tiene como objetivo evaluar ni supervisar a personas.",
+          introP2: "Los resultados se agregarán por empresa, país o región y departamento. Los informes no identificarán a personas.",
+          introP3: "Las preguntas Q1 a Q19 son obligatorias. Q20 es opcional; si responde, describa solo un problema de negocio generalizado.",
+          single: "Selección única",
+          multi: "Selección múltiple",
+          max: "Hasta {max}",
+          textMeta: "Texto libre, opcional, hasta 300 caracteres",
+          requiredError: "Esta pregunta es obligatoria.",
+          maxError: "Seleccione hasta {max} opciones.",
+          clear: "Borrar respuestas",
+          submit: "Crear datos de respuesta",
+          resultTitle: "Datos de respuesta creados",
+          resultBody: "Los datos de respuesta se enviaron al destino de almacenamiento administrado. También puede guardar JSON o CSV localmente si es necesario.",
+          resultLocalOnly: "Este entorno no envía datos a un servidor. Guarde el JSON o CSV generado en una ubicación controlada según sea necesario.",
+          resultSaveFailed: "No se pudieron guardar los datos de respuesta en el servidor. Verifique la red e inténtelo de nuevo.",
+          downloadJson: "Guardar JSON",
+          downloadCsv: "Guardar CSV",
+          placeholder: "Ejemplo: Reducir el tiempo dedicado a buscar políticas internas y documentos anteriores",
+          confidentialHint: "No introduzca nombres de clientes, nombres de personas, nombres de proyectos, información contractual, información financiera no pública, código fuente, materiales de clientes ni otra información confidencial.",
+          counter: "{count} / 300 caracteres"
+        },
+        sections: {
+          profile: "A. Perfil del encuestado",
+          usage: "B. Uso de IA",
+          risk: "C. Riesgo y gobernanza",
+          impact: "D. Impacto y madurez",
+          needs: "E. Necesidades y texto libre"
+        }
+      }
+    };
+
+    const questionText = {
+      ja: {
+        q01: "所属会社を選択してください",
+        q02: "所属国・地域を選択してください",
+        q03: "所属部門を選択してください",
+        q04: "職位を選択してください",
+        q05: "現在、業務で生成AI・LLMを利用していますか",
+        q06: "業務でのAI利用頻度を選択してください",
+        q07: "利用しているAIツールを選択してください",
+        q08: "AIを利用している主な業務を選択してください",
+        q09: "AIに入力したことがある情報を選択してください",
+        q10: "業務で利用しているAIツールは会社承認済みですか",
+        q11: "AI利用に関する会社・部門のルールを理解していますか",
+        q12: "AI利用時に不安な点を選択してください",
+        q13: "AI利用により、業務時間はどの程度削減されていますか",
+        q14: "AI利用により、成果物の品質は向上していますか",
+        q15: "AIはあなたの業務プロセスにどの程度組み込まれていますか",
+        q16: "あなたの会社・部門では、経営層または管理職がAI活用を推進していますか",
+        q17: "業務でAIを使うための教育・研修を受けたことがありますか",
+        q18: "安全なエンタープライズLLMが会社から提供された場合、利用したいですか",
+        q19: "全社LLMに期待する機能を選択してください",
+        q20: "AIで解決したい業務課題を1つ記入してください"
+      },
+      en: {
+        q01: "Select your company affiliation",
+        q02: "Select your country or region",
+        q03: "Select your department",
+        q04: "Select your job level",
+        q05: "Do you currently use generative AI or LLMs for work?",
+        q06: "How often do you use AI for work?",
+        q07: "Select the AI tools you use",
+        q08: "Select the main tasks where you use AI",
+        q09: "Select the types of information you have entered into AI tools",
+        q10: "Are the AI tools you use for work approved by the company?",
+        q11: "Do you understand your company or department rules for AI use?",
+        q12: "Select your concerns when using AI",
+        q13: "How much work time has AI helped you reduce?",
+        q14: "Has AI improved the quality of your deliverables?",
+        q15: "How deeply is AI integrated into your work process?",
+        q16: "In your company or department, do executives or managers promote AI use?",
+        q17: "Have you received training to use AI for work?",
+        q18: "If the company provided a secure enterprise LLM, would you want to use it?",
+        q19: "Select the functions you expect from a company-wide LLM",
+        q20: "Describe one business issue you would like AI to solve"
+      },
+      zh: {
+        q01: "请选择所属公司",
+        q02: "请选择所属国家或地区",
+        q03: "请选择所属部门",
+        q04: "请选择职位层级",
+        q05: "目前您是否在工作中使用生成式 AI 或 LLM？",
+        q06: "请选择您在工作中使用 AI 的频率",
+        q07: "请选择您正在使用的 AI 工具",
+        q08: "请选择您主要使用 AI 的业务场景",
+        q09: "请选择您曾输入到 AI 中的信息类型",
+        q10: "您在工作中使用的 AI 工具是否已获得公司批准？",
+        q11: "您是否理解公司或部门关于 AI 使用的规则？",
+        q12: "请选择您在使用 AI 时担心的问题",
+        q13: "AI 在多大程度上减少了您的工作时间？",
+        q14: "AI 是否提升了您的成果物质量？",
+        q15: "AI 在多大程度上融入了您的工作流程？",
+        q16: "在您的公司或部门，经营层或管理者是否推动 AI 使用？",
+        q17: "您是否接受过为了在工作中使用 AI 的教育或培训？",
+        q18: "如果公司提供安全的企业级 LLM，您是否愿意使用？",
+        q19: "请选择您期待全公司 LLM 具备的功能",
+        q20: "请填写一个希望通过 AI 解决的业务课题"
+      },
+      es: {
+        q01: "Seleccione su empresa",
+        q02: "Seleccione su país o región",
+        q03: "Seleccione su departamento",
+        q04: "Seleccione su nivel de puesto",
+        q05: "¿Utiliza actualmente IA generativa o LLM para el trabajo?",
+        q06: "Seleccione la frecuencia con la que usa IA en el trabajo",
+        q07: "Seleccione las herramientas de IA que utiliza",
+        q08: "Seleccione las principales tareas en las que utiliza IA",
+        q09: "Seleccione los tipos de información que ha introducido en herramientas de IA",
+        q10: "¿Las herramientas de IA que utiliza en el trabajo están aprobadas por la empresa?",
+        q11: "¿Comprende las reglas de la empresa o del departamento sobre el uso de IA?",
+        q12: "Seleccione sus preocupaciones al usar IA",
+        q13: "¿En qué medida la IA ha reducido su tiempo de trabajo?",
+        q14: "¿La IA ha mejorado la calidad de sus entregables?",
+        q15: "¿En qué medida está integrada la IA en su proceso de trabajo?",
+        q16: "En su empresa o departamento, ¿la dirección o los mandos promueven el uso de IA?",
+        q17: "¿Ha recibido capacitación para usar IA en el trabajo?",
+        q18: "Si la empresa proporcionara un LLM empresarial seguro, ¿le gustaría usarlo?",
+        q19: "Seleccione las funciones que espera de un LLM para toda la empresa",
+        q20: "Describa un problema de negocio que le gustaría resolver con IA"
+      }
+    };
+
+    const optionText = {
+      ja: {
+        japan_headquarters: "日本本社", domestic_subsidiary: "国内子会社", overseas_subsidiary: "海外子会社", other: "その他",
+        japan: "日本", asia_pacific: "アジア太平洋", north_america: "北米", europe: "欧州",
+        corporate_planning: "経営企画", sales: "営業", marketing: "マーケティング", hr: "人事", accounting_finance: "経理・財務", legal: "法務", it: "情報システム", development_engineering: "開発・技術", qa_testing: "QA・テスト", customer_support: "カスタマーサポート", bpo_operations: "BPO・オペレーション", administration: "管理部門",
+        executive: "経営層", department_head: "部門長", manager: "マネージャー", leader: "リーダー", member: "メンバー",
+        using: "利用している", trial_use: "試験的に利用している", used_before_not_now: "過去に利用したが現在は利用していない", not_using: "利用していない", not_using_due_to_ban_or_unclear_rules: "利用禁止またはルール不明のため使っていない",
+        daily: "毎日", several_times_week: "週に数回", several_times_month: "月に数回", rarely: "ほとんど使わない",
+        chatgpt: "ChatGPT", microsoft_copilot: "Microsoft Copilot", google_gemini: "Google Gemini", claude: "Claude", perplexity: "Perplexity", internal_ai_chatbot: "社内AIチャットボット", translation_ai: "翻訳AI", meeting_minutes_ai: "議事録AI", code_generation_ai: "コード生成AI",
+        writing: "文章作成", summarization: "要約", translation: "翻訳", email_writing: "メール作成", meeting_minutes: "議事録作成", research: "調査・リサーチ", proposal_creation: "提案書作成", contract_review_support: "契約書レビュー補助", data_analysis: "データ分析", code_generation: "コード生成", code_review: "ソースコードレビュー", specification_creation: "仕様書作成", test_case_creation: "テストケース作成", test_automation: "テスト自動化", inquiry_response: "問い合わせ対応", faq_creation: "FAQ作成", image_video_content_creation: "画像・動画・コンテンツ制作",
+        public_information_only: "公開情報のみ", internal_general_information: "社内一般情報", internal_confidential_information: "社内機密情報", customer_provided_materials: "顧客から受領した資料", personal_information: "個人情報", contracts: "契約書", financial_information: "財務情報", source_code: "ソースコード", specifications_design_docs: "仕様書・設計書", incident_defect_information: "障害情報・不具合情報", do_not_remember: "入力した内容を覚えていない",
+        company_approved_tool: "会社承認済みのツールを使っている", department_decision: "部門判断で使っている", personal_decision: "個人判断で使っている", approval_status_unknown: "承認状況が分からない",
+        fully_understand: "十分理解している", mostly_understand: "ある程度理解している", do_not_understand_much: "あまり理解していない", do_not_understand_at_all: "まったく理解していない", do_not_know_if_rules_exist: "ルールがあるか分からない",
+        confidential_information_leakage: "機密情報漏えい", personal_information_leakage: "個人情報漏えい", customer_contract_violation: "顧客契約違反", copyright_infringement: "著作権侵害", answer_accuracy: "回答の正確性", responsibility_for_output: "出力内容の責任所在", usage_log_management: "利用ログの管理", internal_rules_unclear: "社内ルールが不明", cannot_explain_to_customers: "顧客に説明できない", no_concern: "特に不安はない",
+        reduced_30_percent_or_more: "30％以上削減されている", reduced_10_to_30_percent: "10〜30％削減されている", reduced_5_to_10_percent: "5〜10％削減されている", reduced_less_than_5_percent: "5％未満の削減", no_effect_felt: "効果は感じていない", more_effort_required: "むしろ手間が増えている", cannot_judge: "判断できない",
+        greatly_improved: "大きく向上している", somewhat_improved: "ある程度向上している", slightly_improved: "少し向上している", unchanged: "変わらない", declined: "低下している",
+        personal_trial_only: "個人的に試しているだけ", supportive_use_in_some_tasks: "一部作業で補助的に使っている", standard_team_work: "チーム内の標準作業として使っている", formal_department_process: "部門の正式な業務プロセスに組み込まれている", essential_to_work: "AIなしでは業務が成立しないレベルで使っている",
+        executives_clearly_promote: "経営層が明確に推進している", department_heads_managers_promote: "部門長・管理職が推進している", some_leaders_promote: "一部のリーダーが推進している", left_to_frontline: "現場任せである", cautious_or_restrictive: "むしろ慎重・抑制的である", do_not_know: "分からない",
+        company_official_training: "全社公式研修を受けた", department_training: "部門研修を受けた", external_training: "外部研修を受けた", self_learning: "自主的に学習している", no_training: "受けたことがない", do_not_know_if_training_exists: "研修が存在するか分からない",
+        strongly_want_to_use: "強く利用したい", want_to_use: "利用したい", depends_on_conditions: "条件次第で利用したい", do_not_really_want_to_use: "あまり利用したくない", do_not_want_to_use: "利用したくない",
+        secure_chat_ai: "安全なチャットAI", internal_document_search: "社内文書検索", proposal_creation_support: "提案書作成支援", contract_review_support: "契約書レビュー支援", test_design_support: "テスト設計支援", customer_response_support: "顧客対応支援", business_system_integration: "業務システム連携", ai_agent_task_automation: "AIエージェントによる作業自動化"
+      },
+      en: {
+        japan_headquarters: "Japan headquarters", domestic_subsidiary: "Domestic subsidiary", overseas_subsidiary: "Overseas subsidiary", other: "Other",
+        japan: "Japan", asia_pacific: "Asia Pacific", north_america: "North America", europe: "Europe",
+        corporate_planning: "Corporate planning", sales: "Sales", marketing: "Marketing", hr: "Human resources", accounting_finance: "Accounting / Finance", legal: "Legal", it: "Information systems", development_engineering: "Development / Engineering", qa_testing: "QA / Testing", customer_support: "Customer support", bpo_operations: "BPO / Operations", administration: "Administration",
+        executive: "Executive", department_head: "Department head", manager: "Manager", leader: "Leader", member: "Member",
+        using: "Currently using", trial_use: "Using on a trial basis", used_before_not_now: "Used before but not currently", not_using: "Not using", not_using_due_to_ban_or_unclear_rules: "Not using because it is prohibited or rules are unclear",
+        daily: "Daily", several_times_week: "Several times a week", several_times_month: "Several times a month", rarely: "Rarely",
+        chatgpt: "ChatGPT", microsoft_copilot: "Microsoft Copilot", google_gemini: "Google Gemini", claude: "Claude", perplexity: "Perplexity", internal_ai_chatbot: "Internal AI chatbot", translation_ai: "Translation AI", meeting_minutes_ai: "Meeting minutes AI", code_generation_ai: "Code generation AI",
+        writing: "Writing", summarization: "Summarization", translation: "Translation", email_writing: "Email writing", meeting_minutes: "Meeting minutes", research: "Research", proposal_creation: "Proposal creation", contract_review_support: "Contract review support", data_analysis: "Data analysis", code_generation: "Code generation", code_review: "Source code review", specification_creation: "Specification creation", test_case_creation: "Test case creation", test_automation: "Test automation", inquiry_response: "Inquiry response", faq_creation: "FAQ creation", image_video_content_creation: "Image, video, or content creation",
+        public_information_only: "Public information only", internal_general_information: "Internal general information", internal_confidential_information: "Internal confidential information", customer_provided_materials: "Materials received from customers", personal_information: "Personal information", contracts: "Contracts", financial_information: "Financial information", source_code: "Source code", specifications_design_docs: "Specifications / Design documents", incident_defect_information: "Incident / Defect information", do_not_remember: "I do not remember what I entered",
+        company_approved_tool: "Using company-approved tools", department_decision: "Using by department decision", personal_decision: "Using by personal decision", approval_status_unknown: "Approval status unknown",
+        fully_understand: "Fully understand", mostly_understand: "Mostly understand", do_not_understand_much: "Do not understand much", do_not_understand_at_all: "Do not understand at all", do_not_know_if_rules_exist: "Do not know whether rules exist",
+        confidential_information_leakage: "Confidential information leakage", personal_information_leakage: "Personal information leakage", customer_contract_violation: "Customer contract violation", copyright_infringement: "Copyright infringement", answer_accuracy: "Accuracy of answers", responsibility_for_output: "Responsibility for outputs", usage_log_management: "Usage log management", internal_rules_unclear: "Internal rules are unclear", cannot_explain_to_customers: "Cannot explain to customers", no_concern: "No particular concern",
+        reduced_30_percent_or_more: "Reduced by 30% or more", reduced_10_to_30_percent: "Reduced by 10-30%", reduced_5_to_10_percent: "Reduced by 5-10%", reduced_less_than_5_percent: "Reduced by less than 5%", no_effect_felt: "No effect felt", more_effort_required: "It requires more effort", cannot_judge: "Cannot judge",
+        greatly_improved: "Greatly improved", somewhat_improved: "Somewhat improved", slightly_improved: "Slightly improved", unchanged: "Unchanged", declined: "Declined",
+        personal_trial_only: "Personal trial only", supportive_use_in_some_tasks: "Used as support in some tasks", standard_team_work: "Used as standard team work", formal_department_process: "Integrated into formal department processes", essential_to_work: "Essential for work",
+        executives_clearly_promote: "Executives clearly promote it", department_heads_managers_promote: "Department heads or managers promote it", some_leaders_promote: "Some leaders promote it", left_to_frontline: "Left to frontline teams", cautious_or_restrictive: "Cautious or restrictive", do_not_know: "Do not know",
+        company_official_training: "Received company official training", department_training: "Received department training", external_training: "Received external training", self_learning: "Learning independently", no_training: "Have not received training", do_not_know_if_training_exists: "Do not know whether training exists",
+        strongly_want_to_use: "Strongly want to use", want_to_use: "Want to use", depends_on_conditions: "Depends on conditions", do_not_really_want_to_use: "Do not really want to use", do_not_want_to_use: "Do not want to use",
+        secure_chat_ai: "Secure chat AI", internal_document_search: "Internal document search", proposal_creation_support: "Proposal creation support", contract_review_support: "Contract review support", test_design_support: "Test design support", customer_response_support: "Customer response support", business_system_integration: "Business system integration", ai_agent_task_automation: "Task automation by AI agents"
+      },
+      zh: {
+        japan_headquarters: "日本总部", domestic_subsidiary: "日本国内子公司", overseas_subsidiary: "海外子公司", other: "其他",
+        japan: "日本", asia_pacific: "亚太", north_america: "北美", europe: "欧洲",
+        corporate_planning: "经营企划", sales: "销售", marketing: "市场营销", hr: "人力资源", accounting_finance: "会计/财务", legal: "法务", it: "信息系统", development_engineering: "开发/技术", qa_testing: "QA/测试", customer_support: "客户支持", bpo_operations: "BPO/运营", administration: "管理部门",
+        executive: "经营层", department_head: "部门负责人", manager: "经理", leader: "负责人/组长", member: "成员",
+        using: "正在使用", trial_use: "试用中", used_before_not_now: "过去使用过但现在未使用", not_using: "未使用", not_using_due_to_ban_or_unclear_rules: "因禁止使用或规则不明确而未使用",
+        daily: "每天", several_times_week: "每周数次", several_times_month: "每月数次", rarely: "几乎不使用",
+        chatgpt: "ChatGPT", microsoft_copilot: "Microsoft Copilot", google_gemini: "Google Gemini", claude: "Claude", perplexity: "Perplexity", internal_ai_chatbot: "内部 AI 聊天机器人", translation_ai: "翻译 AI", meeting_minutes_ai: "会议纪要 AI", code_generation_ai: "代码生成 AI",
+        writing: "文章撰写", summarization: "摘要", translation: "翻译", email_writing: "邮件撰写", meeting_minutes: "会议纪要", research: "调查/研究", proposal_creation: "提案书制作", contract_review_support: "合同审查辅助", data_analysis: "数据分析", code_generation: "代码生成", code_review: "源代码审查", specification_creation: "规格书制作", test_case_creation: "测试用例制作", test_automation: "测试自动化", inquiry_response: "咨询应答", faq_creation: "FAQ 制作", image_video_content_creation: "图像/视频/内容制作",
+        public_information_only: "仅公开信息", internal_general_information: "内部一般信息", internal_confidential_information: "内部机密信息", customer_provided_materials: "客户提供的资料", personal_information: "个人信息", contracts: "合同", financial_information: "财务信息", source_code: "源代码", specifications_design_docs: "规格书/设计书", incident_defect_information: "故障/缺陷信息", do_not_remember: "不记得输入过什么",
+        company_approved_tool: "使用公司批准的工具", department_decision: "根据部门判断使用", personal_decision: "根据个人判断使用", approval_status_unknown: "不清楚批准状态",
+        fully_understand: "充分理解", mostly_understand: "大致理解", do_not_understand_much: "不太理解", do_not_understand_at_all: "完全不理解", do_not_know_if_rules_exist: "不知道是否有规则",
+        confidential_information_leakage: "机密信息泄露", personal_information_leakage: "个人信息泄露", customer_contract_violation: "违反客户合同", copyright_infringement: "侵犯版权", answer_accuracy: "回答准确性", responsibility_for_output: "输出内容的责任归属", usage_log_management: "使用日志管理", internal_rules_unclear: "内部规则不明确", cannot_explain_to_customers: "无法向客户说明", no_concern: "没有特别担忧",
+        reduced_30_percent_or_more: "减少 30% 以上", reduced_10_to_30_percent: "减少 10-30%", reduced_5_to_10_percent: "减少 5-10%", reduced_less_than_5_percent: "减少不到 5%", no_effect_felt: "未感受到效果", more_effort_required: "反而增加了工作量", cannot_judge: "无法判断",
+        greatly_improved: "大幅提升", somewhat_improved: "有所提升", slightly_improved: "略有提升", unchanged: "没有变化", declined: "下降",
+        personal_trial_only: "仅个人试用", supportive_use_in_some_tasks: "在部分工作中辅助使用", standard_team_work: "作为团队标准作业使用", formal_department_process: "已纳入部门正式业务流程", essential_to_work: "已达到没有 AI 工作无法成立的程度",
+        executives_clearly_promote: "经营层明确推动", department_heads_managers_promote: "部门负责人/管理者推动", some_leaders_promote: "部分负责人推动", left_to_frontline: "交由现场自行判断", cautious_or_restrictive: "较为谨慎或限制", do_not_know: "不知道",
+        company_official_training: "接受过公司官方培训", department_training: "接受过部门培训", external_training: "接受过外部培训", self_learning: "自主学习中", no_training: "未接受过培训", do_not_know_if_training_exists: "不知道是否有培训",
+        strongly_want_to_use: "非常想使用", want_to_use: "想使用", depends_on_conditions: "视条件而定", do_not_really_want_to_use: "不太想使用", do_not_want_to_use: "不想使用",
+        secure_chat_ai: "安全的聊天 AI", internal_document_search: "内部文档搜索", proposal_creation_support: "提案书制作支持", contract_review_support: "合同审查支持", test_design_support: "测试设计支持", customer_response_support: "客户应对支持", business_system_integration: "业务系统联动", ai_agent_task_automation: "通过 AI 代理实现作业自动化"
+      },
+      es: {
+        japan_headquarters: "Sede central en Japón", domestic_subsidiary: "Filial nacional", overseas_subsidiary: "Filial internacional", other: "Otro",
+        japan: "Japón", asia_pacific: "Asia-Pacífico", north_america: "Norteamérica", europe: "Europa",
+        corporate_planning: "Planificación corporativa", sales: "Ventas", marketing: "Marketing", hr: "Recursos humanos", accounting_finance: "Contabilidad / Finanzas", legal: "Legal", it: "Sistemas de información", development_engineering: "Desarrollo / Ingeniería", qa_testing: "QA / Pruebas", customer_support: "Atención al cliente", bpo_operations: "BPO / Operaciones", administration: "Administración",
+        executive: "Dirección ejecutiva", department_head: "Jefe de departamento", manager: "Gerente", leader: "Líder", member: "Miembro",
+        using: "Lo uso actualmente", trial_use: "Lo uso de forma experimental", used_before_not_now: "Lo usé antes, pero no actualmente", not_using: "No lo uso", not_using_due_to_ban_or_unclear_rules: "No lo uso porque está prohibido o las reglas no están claras",
+        daily: "Todos los días", several_times_week: "Varias veces por semana", several_times_month: "Varias veces por mes", rarely: "Casi nunca",
+        chatgpt: "ChatGPT", microsoft_copilot: "Microsoft Copilot", google_gemini: "Google Gemini", claude: "Claude", perplexity: "Perplexity", internal_ai_chatbot: "Chatbot interno de IA", translation_ai: "IA de traducción", meeting_minutes_ai: "IA para actas de reunión", code_generation_ai: "IA de generación de código",
+        writing: "Redacción", summarization: "Resumen", translation: "Traducción", email_writing: "Redacción de correos", meeting_minutes: "Actas de reunión", research: "Investigación", proposal_creation: "Creación de propuestas", contract_review_support: "Apoyo a revisión de contratos", data_analysis: "Análisis de datos", code_generation: "Generación de código", code_review: "Revisión de código fuente", specification_creation: "Creación de especificaciones", test_case_creation: "Creación de casos de prueba", test_automation: "Automatización de pruebas", inquiry_response: "Respuesta a consultas", faq_creation: "Creación de FAQ", image_video_content_creation: "Creación de imágenes, video o contenido",
+        public_information_only: "Solo información pública", internal_general_information: "Información interna general", internal_confidential_information: "Información interna confidencial", customer_provided_materials: "Materiales recibidos de clientes", personal_information: "Información personal", contracts: "Contratos", financial_information: "Información financiera", source_code: "Código fuente", specifications_design_docs: "Especificaciones / Documentos de diseño", incident_defect_information: "Información de incidentes / defectos", do_not_remember: "No recuerdo qué introduje",
+        company_approved_tool: "Uso herramientas aprobadas por la empresa", department_decision: "Uso por decisión del departamento", personal_decision: "Uso por decisión personal", approval_status_unknown: "No conozco el estado de aprobación",
+        fully_understand: "Lo comprendo completamente", mostly_understand: "Lo comprendo en cierta medida", do_not_understand_much: "No lo comprendo mucho", do_not_understand_at_all: "No lo comprendo en absoluto", do_not_know_if_rules_exist: "No sé si existen reglas",
+        confidential_information_leakage: "Fuga de información confidencial", personal_information_leakage: "Fuga de información personal", customer_contract_violation: "Incumplimiento de contrato con clientes", copyright_infringement: "Infracción de derechos de autor", answer_accuracy: "Exactitud de las respuestas", responsibility_for_output: "Responsabilidad por los resultados", usage_log_management: "Gestión de registros de uso", internal_rules_unclear: "Las reglas internas no están claras", cannot_explain_to_customers: "No puedo explicarlo a los clientes", no_concern: "Ninguna preocupación particular",
+        reduced_30_percent_or_more: "Reducción del 30% o más", reduced_10_to_30_percent: "Reducción del 10-30%", reduced_5_to_10_percent: "Reducción del 5-10%", reduced_less_than_5_percent: "Reducción inferior al 5%", no_effect_felt: "No percibo efecto", more_effort_required: "Requiere más esfuerzo", cannot_judge: "No puedo juzgar",
+        greatly_improved: "Ha mejorado mucho", somewhat_improved: "Ha mejorado en cierta medida", slightly_improved: "Ha mejorado ligeramente", unchanged: "Sin cambios", declined: "Ha empeorado",
+        personal_trial_only: "Solo prueba personal", supportive_use_in_some_tasks: "Uso de apoyo en algunas tareas", standard_team_work: "Uso como trabajo estándar del equipo", formal_department_process: "Integrado en procesos formales del departamento", essential_to_work: "Esencial para el trabajo",
+        executives_clearly_promote: "La dirección ejecutiva lo promueve claramente", department_heads_managers_promote: "Jefes de departamento o gerentes lo promueven", some_leaders_promote: "Algunos líderes lo promueven", left_to_frontline: "Se deja al criterio del equipo operativo", cautious_or_restrictive: "Actitud cautelosa o restrictiva", do_not_know: "No lo sé",
+        company_official_training: "Recibí capacitación oficial de la empresa", department_training: "Recibí capacitación del departamento", external_training: "Recibí capacitación externa", self_learning: "Aprendo por mi cuenta", no_training: "No he recibido capacitación", do_not_know_if_training_exists: "No sé si existe capacitación",
+        strongly_want_to_use: "Me gustaría mucho usarlo", want_to_use: "Me gustaría usarlo", depends_on_conditions: "Depende de las condiciones", do_not_really_want_to_use: "No me gustaría mucho usarlo", do_not_want_to_use: "No quiero usarlo",
+        secure_chat_ai: "Chat de IA seguro", internal_document_search: "Búsqueda de documentos internos", proposal_creation_support: "Apoyo a creación de propuestas", contract_review_support: "Apoyo a revisión de contratos", test_design_support: "Apoyo al diseño de pruebas", customer_response_support: "Apoyo a atención al cliente", business_system_integration: "Integración con sistemas de negocio", ai_agent_task_automation: "Automatización de tareas mediante agentes de IA"
+      }
+    };
+
+    const state = {
+      language: pickInitialLanguage(),
+      latestResponse: null
+    };
+
+    const form = document.getElementById("surveyForm");
+    const questionContainer = document.getElementById("questionContainer");
+    const resultPanel = document.getElementById("resultPanel");
+
+    function pickInitialLanguage() {
+      const browserLanguage = (navigator.language || "ja").toLowerCase();
+      if (browserLanguage.startsWith("zh")) return "zh";
+      if (browserLanguage.startsWith("es")) return "es";
+      if (browserLanguage.startsWith("en")) return "en";
+      return "ja";
+    }
+
+    function t(path, replacements = {}) {
+      const [group, key] = path.split(".");
+      let value = i18n[state.language][group][key];
+      Object.entries(replacements).forEach(([token, replacement]) => {
+        value = value.replace(`{${token}}`, replacement);
+      });
+      return value;
+    }
+
+    function optionLabel(code) {
+      return optionText[state.language][code] || optionText.en[code] || code;
+    }
+
+    function getSavedAnswers() {
+      const answers = {};
+      Object.keys(questions).forEach((id) => {
+        answers[id] = getValue(id);
+      });
+      return answers;
+    }
+
+    function restoreAnswers(answers) {
+      Object.entries(answers).forEach(([id, value]) => {
+        const question = questions[id];
+        if (!question) return;
+        if (question.type === "text") {
+          const field = form.querySelector(`[name="${id}"]`);
+          if (field) field.value = value || "";
+          return;
+        }
+        const values = Array.isArray(value) ? value : [value];
+        values.filter(Boolean).forEach((selectedValue) => {
+          const field = form.querySelector(`[name="${id}"][value="${selectedValue}"]`);
+          if (field) field.checked = true;
+        });
+      });
+      updateTextCounter();
+      updateProgress();
+    }
+
+    function renderLanguageSwitcher() {
+      const switcher = document.getElementById("languageSwitcher");
+      switcher.innerHTML = languages.map((language) => (
+        `<button class="lang-button${language.code === state.language ? " active" : ""}" type="button" data-language="${language.code}">${language.label}</button>`
+      )).join("");
+    }
+
+    function renderStaticText() {
+      const language = languages.find((item) => item.code === state.language);
+      document.documentElement.lang = language.htmlLang;
+      document.title = t("ui.title");
+      document.getElementById("pageTitle").textContent = t("ui.title");
+      document.getElementById("pageLead").textContent = t("ui.lead");
+      document.getElementById("progressTitle").textContent = t("ui.progressTitle");
+      document.getElementById("noticeTitle").textContent = t("ui.noticeTitle");
+      document.getElementById("noticeBody").textContent = t("ui.noticeBody");
+      document.getElementById("introTitle").textContent = t("ui.introTitle");
+      document.getElementById("introP1").textContent = t("ui.introP1");
+      document.getElementById("introP2").textContent = t("ui.introP2");
+      document.getElementById("introP3").textContent = t("ui.introP3");
+      document.getElementById("clearButton").textContent = t("ui.clear");
+      document.getElementById("submitButton").textContent = t("ui.submit");
+      document.getElementById("resultTitle").textContent = t("ui.resultTitle");
+      document.getElementById("resultBody").textContent = t("ui.resultBody");
+      document.getElementById("downloadJson").textContent = t("ui.downloadJson");
+      document.getElementById("downloadCsv").textContent = t("ui.downloadCsv");
+    }
+
+    function renderQuestions() {
+      questionContainer.innerHTML = sections.map((section) => {
+        const body = section.questions.map((id) => renderQuestion(id)).join("");
+        return `<fieldset><legend>${i18n[state.language].sections[section.id]}</legend>${body}</fieldset>`;
+      }).join("");
+    }
+
+    function renderQuestion(id) {
+      const question = questions[id];
+      const number = Number(id.replace("q", ""));
+      const meta = getMeta(question);
+      const body = question.type === "text" ? renderText(id, question) : renderOptions(id, question);
+      return `
+        <div class="question" data-question="${id}" data-required="${question.required ? "true" : "false"}" data-max="${question.max || ""}">
+          <div class="question-head">
+            <span class="num">Q${number}</span>
+            <div>
+              <p class="question-title">${questionText[state.language][id]}</p>
+              <p class="meta">${meta}</p>
+            </div>
+          </div>
+          ${body}
+        </div>
+      `;
+    }
+
+    function getMeta(question) {
+      if (question.type === "text") return t("ui.textMeta");
+      if (question.type === "single") return t("ui.single");
+      if (question.max) return `${t("ui.multi")}、${t("ui.max", { max: question.max })}`;
+      return t("ui.multi");
+    }
+
+    function renderOptions(id, question) {
+      const inputType = question.type === "single" ? "radio" : "checkbox";
+      const role = question.type === "single" ? ' role="radiogroup"' : "";
+      const options = question.options.map((code) => (
+        `<label class="option"><input type="${inputType}" name="${id}" value="${code}"><span>${optionLabel(code)}</span></label>`
+      )).join("");
+      return `<div class="options"${role} aria-label="${questionText[state.language][id]}">${options}</div>`;
+    }
+
+    function renderText(id, question) {
+      return `
+        <textarea name="${id}" maxlength="${question.maxLength}" placeholder="${t("ui.placeholder")}"></textarea>
+        <p class="hint">${t("ui.confidentialHint")}</p>
+        <p class="counter" id="textCounter">${t("ui.counter", { count: 0 })}</p>
+      `;
+    }
+
+    function renderAll() {
+      const savedAnswers = getSavedAnswers();
+      renderLanguageSwitcher();
+      renderStaticText();
+      renderQuestions();
+      restoreAnswers(savedAnswers);
+      resultPanel.classList.remove("active");
+    }
+
+    function getValue(id) {
+      const fields = [...form.querySelectorAll(`[name="${id}"]`)];
+      if (!fields.length) return "";
+      if (fields[0].type === "checkbox") {
+        return fields.filter((field) => field.checked).map((field) => field.value);
+      }
+      if (fields[0].type === "radio") {
+        const selected = fields.find((field) => field.checked);
+        return selected ? selected.value : "";
+      }
+      return fields[0].value.trim();
+    }
+
+    function isAnswered(id) {
+      const value = getValue(id);
+      return Array.isArray(value) ? value.length > 0 : value.length > 0;
+    }
+
+    function updateProgress() {
+      const total = Object.keys(questions).length;
+      const answered = Object.keys(questions).filter(isAnswered).length;
+      const percent = Math.round((answered / total) * 100);
+      document.getElementById("progressBar").style.width = `${percent}%`;
+      document.getElementById("progressText").textContent = t("ui.progress", { answered, total });
+    }
+
+    function updateTextCounter() {
+      const textarea = form.querySelector('[name="q20"]');
+      const counter = document.getElementById("textCounter");
+      if (textarea && counter) {
+        counter.textContent = t("ui.counter", { count: textarea.value.length });
+      }
+    }
+
+    function removeErrors() {
+      form.querySelectorAll(".error").forEach((node) => node.remove());
+    }
+
+    function addError(questionNode, message) {
+      const error = document.createElement("p");
+      error.className = "error";
+      error.textContent = message;
+      questionNode.appendChild(error);
+    }
+
+    function validateForm() {
+      removeErrors();
+      const invalid = [];
+
+      Object.entries(questions).forEach(([id, question]) => {
+        const questionNode = form.querySelector(`[data-question="${id}"]`);
+        if (!questionNode) return;
+        const value = getValue(id);
+        if (question.required && !isAnswered(id)) {
+          addError(questionNode, t("ui.requiredError"));
+          invalid.push(questionNode);
+        }
+        if (question.type === "multi" && question.max && value.length > question.max) {
+          addError(questionNode, t("ui.maxError", { max: question.max }));
+          invalid.push(questionNode);
+        }
+      });
+
+      if (!invalid.length) return true;
+      invalid[0].scrollIntoView({ behavior: "smooth", block: "center" });
+      const firstInput = invalid[0].querySelector("input, textarea");
+      if (firstInput) firstInput.focus({ preventScroll: true });
+      return false;
+    }
+
+    function collectResponse() {
+      const answers = {};
+      Object.keys(questions).forEach((id) => {
+        answers[id] = getValue(id);
+      });
+      return {
+        survey: "global_ai_readiness_survey",
+        language: state.language,
+        submitted_at: new Date().toISOString(),
+        answers
+      };
+    }
+
+    function toCsv(response) {
+      const headers = ["survey", "language", "submitted_at", ...Object.keys(response.answers)];
+      const row = [
+        response.survey,
+        response.language,
+        response.submitted_at,
+        ...Object.values(response.answers).map((value) => Array.isArray(value) ? value.join(";") : value)
+      ];
+      const escapeCell = (value) => `"${String(value).replaceAll('"', '""')}"`;
+      return `${headers.map(escapeCell).join(",")}\r\n${row.map(escapeCell).join(",")}\r\n`;
+    }
+
+    function download(filename, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function shouldPostToServer() {
+      return window.location.protocol === "http:" || window.location.protocol === "https:";
+    }
+
+    async function postResponse(response) {
+      const result = await fetch("/api/responses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(response)
+      });
+      const body = await result.json().catch(() => ({}));
+      if (!result.ok || !body.ok) {
+        throw new Error(body.error || `Save failed with status ${result.status}`);
+      }
+      return body;
+    }
+
+    document.getElementById("languageSwitcher").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-language]");
+      if (!button) return;
+      state.language = button.dataset.language;
+      state.latestResponse = null;
+      renderAll();
+    });
+
+    form.addEventListener("change", (event) => {
+      const questionNode = event.target.closest(".question");
+      if (!questionNode) return;
+      const id = questionNode.dataset.question;
+      const question = questions[id];
+      if (question.type === "multi" && question.max) {
+        const selected = getValue(id);
+        if (selected.length > question.max) {
+          event.target.checked = false;
+          removeErrors();
+          addError(questionNode, t("ui.maxError", { max: question.max }));
+          setTimeout(removeErrors, 1800);
+        }
+      }
+      state.latestResponse = null;
+      resultPanel.classList.remove("active");
+      updateProgress();
+    });
+
+    form.addEventListener("input", (event) => {
+      if (event.target.name === "q20") updateTextCounter();
+      state.latestResponse = null;
+      resultPanel.classList.remove("active");
+      updateProgress();
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!validateForm()) return;
+      const submitButton = document.getElementById("submitButton");
+      submitButton.disabled = true;
+      state.latestResponse = collectResponse();
+      try {
+        if (shouldPostToServer()) {
+          state.latestResponse.server_result = await postResponse(state.latestResponse);
+          document.getElementById("resultBody").textContent = t("ui.resultBody");
+        } else {
+          document.getElementById("resultBody").textContent = t("ui.resultLocalOnly");
+        }
+        resultPanel.classList.add("active");
+        resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (error) {
+        document.getElementById("resultBody").textContent = t("ui.resultSaveFailed");
+        resultPanel.classList.add("active");
+        resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+
+    document.getElementById("clearButton").addEventListener("click", () => {
+      form.reset();
+      state.latestResponse = null;
+      resultPanel.classList.remove("active");
+      removeErrors();
+      updateTextCounter();
+      updateProgress();
+    });
+
+    document.getElementById("downloadJson").addEventListener("click", () => {
+      if (!state.latestResponse) state.latestResponse = collectResponse();
+      download("global_ai_readiness_survey_response.json", JSON.stringify(state.latestResponse, null, 2), "application/json;charset=utf-8");
+    });
+
+    document.getElementById("downloadCsv").addEventListener("click", () => {
+      if (!state.latestResponse) state.latestResponse = collectResponse();
+      download("global_ai_readiness_survey_response.csv", toCsv(state.latestResponse), "text/csv;charset=utf-8");
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>
