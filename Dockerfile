@@ -9,6 +9,7 @@ RUN npm ci --omit=dev
 
 COPY global_ai_readiness_survey.html ./
 COPY server.js ./
+COPY admin_dashboard.html ./
 
 EXPOSE 8080
 CMD ["node", "server.js"]
