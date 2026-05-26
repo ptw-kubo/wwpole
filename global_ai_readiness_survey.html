@@ -1685,6 +1685,7 @@
       event.preventDefault();
       if (shouldPostToServer() && hasSubmittedBefore()) {
         setResultBody(t("ui.resultDuplicate"), true);
+        completeSubmission();
         resultPanel.classList.add("active");
         resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
         return;
