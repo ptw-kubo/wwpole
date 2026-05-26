@@ -12,7 +12,7 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-    AZURE_SUBSCRIPTION_ID: c3c1c33a-9178-4867-ba12-13ef4ebdd4dc
+  AZURE_SUBSCRIPTION_ID: c3c1c33a-9178-4867-ba12-13ef4ebdd4dc
   AZURE_RESOURCE_GROUP: rg-dev-wwpole
   AZURE_LOCATION: japaneast
   AZURE_CONTAINER_APP_NAME: ca-global-ai-readiness-survey
