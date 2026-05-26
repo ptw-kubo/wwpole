@@ -91,6 +91,12 @@ function waitForServer(processHandle) {
     await assert.equal(health.status, 200);
     await assert.deepEqual(await health.json(), { ok: true, storage: "local_file" });
 
+    const adminPage = await fetch(`${baseUrl}/admin`, {
+      headers: { Authorization: basicAuth }
+    });
+    await assert.equal(adminPage.status, 200);
+    await assert.match(await adminPage.text(), /アンケート管理/);
+
     const save = await fetch(`${baseUrl}/api/responses`, {
       method: "POST",
       headers: { Authorization: basicAuth, "Content-Type": "application/json" },
@@ -128,6 +134,31 @@ function waitForServer(processHandle) {
     });
     await assert.equal(duplicate.status, 409);
     await assert.equal((await duplicate.json()).code, "duplicate_response");
+
+    const multilingual = validPayload();
+    multilingual.language = "ko";
+    multilingual.response_code = "qa-test-0002";
+    const multilingualSave = await fetch(`${baseUrl}/api/responses`, {
+      method: "POST",
+      headers: { Authorization: basicAuth, "Content-Type": "application/json" },
+      body: JSON.stringify(multilingual)
+    });
+    await assert.equal(multilingualSave.status, 201);
+
+    const summaryResponse = await fetch(`${baseUrl}/api/admin/summary`, {
+      headers: { Authorization: basicAuth }
+    });
+    await assert.equal(summaryResponse.status, 200);
+    const summaryBody = await summaryResponse.json();
+    await assert.equal(summaryBody.ok, true);
+    await assert.equal(summaryBody.summary.total_responses, 2);
+    await assert.deepEqual(summaryBody.summary.by_language, [
+      { label: "ja", count: 1 },
+      { label: "ko", count: 1 }
+    ]);
+    await assert.equal(summaryBody.summary.questions.q01.answered, 2);
+    await assert.equal(summaryBody.summary.questions.q01.options[0].label, "japan_headquarters");
+    await assert.equal(summaryBody.summary.questions.q01.options[0].count, 2);
 
     const invalid = validPayload();
     delete invalid.answers.q19;

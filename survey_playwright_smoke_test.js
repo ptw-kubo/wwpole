@@ -171,6 +171,16 @@ test("P1-001", "言語切替で文言が変わり回答は保持される", asyn
   await assert.match(await page.locator("#pageTitle").textContent(), /Global AI Readiness Survey/);
 });
 
+test("P1-001b", "8言語の切替ボタンが表示され各言語で描画できる", async ({ page }) => {
+  const expectedLanguages = ["ja", "en", "fr", "es", "pt", "vi", "zh", "ko"];
+  await assert.equal(await page.locator("[data-language]").count(), expectedLanguages.length);
+  for (const language of expectedLanguages) {
+    await page.locator(`[data-language="${language}"]`).click();
+    await assert.match(await page.locator("html").getAttribute("lang"), new RegExp(`^${language}`));
+    await assert.equal(await page.locator(".question").count(), 20);
+  }
+});
+
 test("P1-002", "クリアで回答、エラー、結果パネル、進捗を初期化", async ({ page }) => {
   await answerValid(page);
   await page.locator("#submitButton").click();

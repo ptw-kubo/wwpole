@@ -460,8 +460,12 @@
     const languages = [
       { code: "ja", label: "日本語", htmlLang: "ja" },
       { code: "en", label: "English", htmlLang: "en" },
+      { code: "fr", label: "Français", htmlLang: "fr" },
+      { code: "es", label: "Español", htmlLang: "es" },
+      { code: "pt", label: "Português", htmlLang: "pt" },
+      { code: "vi", label: "Tiếng Việt", htmlLang: "vi" },
       { code: "zh", label: "中文", htmlLang: "zh-CN" },
-      { code: "es", label: "Español", htmlLang: "es" }
+      { code: "ko", label: "한국어", htmlLang: "ko" }
     ];
 
     const sections = [
@@ -588,6 +592,144 @@
           needs: "E. Needs and Free Text"
         }
       },
+      fr: {
+        ui: {
+          title: "Enquete mondiale sur la preparation a l'IA",
+          lead: "Cette enquete soutient la planification des LLM d'entreprise, la formation, la conception de la securite et les regles d'utilisation dans le groupe.",
+          progressTitle: "Progression",
+          progress: "{answered} / {total} questions",
+          noticeTitle: "Ne saisissez pas d'informations confidentielles",
+          noticeBody: "Ne saisissez pas de noms de clients, de personnes, de projets, d'informations contractuelles, d'informations financieres non publiques, de code source, de documents client ou d'autres informations confidentielles dans les champs libres.",
+          accessTitle: "Verification du code de reponse",
+          accessLead: "Les reponses sont acceptees avec l'URL propre a l'entreprise et le code de reponse distribue.",
+          companyCode: "Code entreprise",
+          missingCompany: "Le code entreprise est absent de l'URL. Utilisez l'URL propre a l'entreprise que vous avez recue.",
+          responseCode: "Code de reponse",
+          responseCodeHint: "Saisissez le code de reponse distribue par votre contact entreprise. Le meme code entreprise et le meme code de reponse ne peuvent pas etre utilises deux fois.",
+          responseCodeError: "Saisissez le code de reponse avec des lettres, des chiffres et des traits d'union.",
+          introTitle: "Avant de repondre",
+          introP1: "Cette enquete n'a pas pour objectif l'evaluation ou la surveillance individuelle.",
+          introP2: "Les resultats seront agreges par entreprise, pays ou region, et departement. Les rapports n'identifieront pas les personnes.",
+          introP3: "Les questions Q1 a Q19 sont obligatoires. Q20 est facultative; si vous repondez, decrivez uniquement un probleme metier generalise.",
+          single: "Choix unique",
+          multi: "Choix multiple",
+          max: "Jusqu'a {max}",
+          textMeta: "Texte libre, facultatif, 300 caracteres maximum",
+          requiredError: "Cette question est obligatoire.",
+          maxError: "Selectionnez jusqu'a {max} options.",
+          clear: "Effacer les reponses",
+          submit: "Creer les donnees de reponse",
+          resultTitle: "Donnees de reponse creees",
+          resultBody: "Les donnees de reponse ont ete envoyees vers l'emplacement de stockage gere. Vous pouvez aussi enregistrer le JSON ou le CSV localement si necessaire.",
+          resultLocalOnly: "Cet environnement n'envoie pas les donnees a un serveur. Stockez le JSON ou le CSV genere dans un emplacement controle si necessaire.",
+          resultSaveFailed: "Echec de l'enregistrement des donnees de reponse sur le serveur. Verifiez le reseau et reessayez.",
+          resultDuplicate: "Ce code entreprise et ce code de reponse ont deja ete utilises. Les reponses en double ne sont pas autorisees.",
+          downloadJson: "Enregistrer JSON",
+          downloadCsv: "Enregistrer CSV",
+          placeholder: "Exemple : reduire le temps passe a rechercher des politiques internes et d'anciens documents",
+          confidentialHint: "Ne saisissez pas de noms de clients, de personnes, de projets, d'informations contractuelles, d'informations financieres non publiques, de code source, de documents client ou d'autres informations confidentielles.",
+          counter: "{count} / 300 caracteres"
+        },
+        sections: {
+          profile: "A. Profil du repondant",
+          usage: "B. Utilisation de l'IA",
+          risk: "C. Risques et gouvernance",
+          impact: "D. Impact et maturite",
+          needs: "E. Besoins et texte libre"
+        }
+      },
+      pt: {
+        ui: {
+          title: "Pesquisa Global de Prontidao para IA",
+          lead: "Esta pesquisa apoia o planejamento de LLM empresarial, treinamentos, desenho de seguranca e regras de uso em todo o grupo.",
+          progressTitle: "Progresso",
+          progress: "{answered} / {total} perguntas",
+          noticeTitle: "Nao insira informacoes confidenciais",
+          noticeBody: "Nao insira nomes de clientes, nomes de pessoas, nomes de projetos, informacoes contratuais, informacoes financeiras nao publicas, codigo-fonte, materiais de clientes ou outras informacoes confidenciais em campos de texto livre.",
+          accessTitle: "Verificacao do codigo de resposta",
+          accessLead: "As respostas sao aceitas usando uma URL especifica da empresa e o codigo de resposta distribuido.",
+          companyCode: "Codigo da empresa",
+          missingCompany: "O codigo da empresa esta ausente da URL. Acesse usando a URL especifica da empresa que voce recebeu.",
+          responseCode: "Codigo de resposta",
+          responseCodeHint: "Insira o codigo de resposta distribuido pelo contato da sua empresa. O mesmo codigo da empresa e codigo de resposta nao podem ser usados duas vezes.",
+          responseCodeError: "Insira o codigo de resposta usando letras, numeros e hifens.",
+          introTitle: "Antes de responder",
+          introP1: "Esta pesquisa nao tem como objetivo avaliacao ou monitoramento individual.",
+          introP2: "Os resultados serao agregados por empresa, pais ou regiao e departamento. Os relatorios nao identificarao pessoas.",
+          introP3: "As perguntas Q1 a Q19 sao obrigatorias. Q20 e opcional; se responder, descreva apenas um problema de negocio generalizado.",
+          single: "Escolha unica",
+          multi: "Multipla escolha",
+          max: "Ate {max}",
+          textMeta: "Texto livre, opcional, ate 300 caracteres",
+          requiredError: "Esta pergunta e obrigatoria.",
+          maxError: "Selecione ate {max} opcoes.",
+          clear: "Limpar respostas",
+          submit: "Criar dados de resposta",
+          resultTitle: "Dados de resposta criados",
+          resultBody: "Os dados de resposta foram enviados ao destino de armazenamento gerenciado. Voce tambem pode salvar JSON ou CSV localmente se necessario.",
+          resultLocalOnly: "Este ambiente nao envia dados a um servidor. Armazene o JSON ou CSV gerado em um local controlado se necessario.",
+          resultSaveFailed: "Falha ao salvar os dados de resposta no servidor. Verifique a rede e tente novamente.",
+          resultDuplicate: "Este codigo da empresa e codigo de resposta ja foram usados. Respostas duplicadas nao sao permitidas.",
+          downloadJson: "Salvar JSON",
+          downloadCsv: "Salvar CSV",
+          placeholder: "Exemplo: reduzir o tempo gasto procurando politicas internas e documentos antigos",
+          confidentialHint: "Nao insira nomes de clientes, nomes de pessoas, nomes de projetos, informacoes contratuais, informacoes financeiras nao publicas, codigo-fonte, materiais de clientes ou outras informacoes confidenciais.",
+          counter: "{count} / 300 caracteres"
+        },
+        sections: {
+          profile: "A. Perfil do respondente",
+          usage: "B. Uso de IA",
+          risk: "C. Risco e governanca",
+          impact: "D. Impacto e maturidade",
+          needs: "E. Necessidades e texto livre"
+        }
+      },
+      vi: {
+        ui: {
+          title: "Khao sat muc do san sang AI toan cau",
+          lead: "Khao sat nay ho tro lap ke hoach LLM doanh nghiep, dao tao, thiet ke bao mat va quy tac su dung trong toan tap doan.",
+          progressTitle: "Tien do",
+          progress: "{answered} / {total} cau hoi",
+          noticeTitle: "Khong nhap thong tin bao mat",
+          noticeBody: "Khong nhap ten khach hang, ten ca nhan, ten du an, thong tin hop dong, thong tin tai chinh chua cong khai, ma nguon, tai lieu khach hang hoac thong tin bao mat khac vao truong van ban tu do.",
+          accessTitle: "Kiem tra ma phan hoi",
+          accessLead: "Cau tra loi duoc chap nhan bang URL rieng cua cong ty va ma phan hoi da phan phoi.",
+          companyCode: "Ma cong ty",
+          missingCompany: "URL khong co ma cong ty. Vui long truy cap bang URL rieng cua cong ty ma ban da nhan.",
+          responseCode: "Ma phan hoi",
+          responseCodeHint: "Nhap ma phan hoi duoc nguoi phu trach cong ty phan phoi. Cung mot ma cong ty va ma phan hoi khong the dung hai lan.",
+          responseCodeError: "Nhap ma phan hoi bang chu cai, chu so va dau gach ngang.",
+          introTitle: "Truoc khi tra loi",
+          introP1: "Khao sat nay khong nham danh gia hoac giam sat ca nhan.",
+          introP2: "Ket qua se duoc tong hop theo cong ty, quoc gia hoac khu vuc va phong ban. Bao cao se khong dinh danh ca nhan.",
+          introP3: "Q1 den Q19 la bat buoc. Q20 la tuy chon; neu tra loi, chi mo ta van de kinh doanh da duoc khai quat hoa.",
+          single: "Mot lua chon",
+          multi: "Nhieu lua chon",
+          max: "Toi da {max}",
+          textMeta: "Van ban tu do, tuy chon, toi da 300 ky tu",
+          requiredError: "Cau hoi nay la bat buoc.",
+          maxError: "Chon toi da {max} lua chon.",
+          clear: "Xoa cau tra loi",
+          submit: "Tao du lieu phan hoi",
+          resultTitle: "Da tao du lieu phan hoi",
+          resultBody: "Du lieu phan hoi da duoc gui den noi luu tru duoc quan ly. Ban cung co the luu JSON hoac CSV cuc bo neu can.",
+          resultLocalOnly: "Moi truong nay khong gui du lieu den may chu. Hay luu JSON hoac CSV da tao vao vi tri duoc kiem soat neu can.",
+          resultSaveFailed: "Khong luu duoc du lieu phan hoi len may chu. Kiem tra mang va thu lai.",
+          resultDuplicate: "Ma cong ty va ma phan hoi nay da duoc su dung. Khong cho phep tra loi trung lap.",
+          downloadJson: "Luu JSON",
+          downloadCsv: "Luu CSV",
+          placeholder: "Vi du: giam thoi gian tim kiem quy dinh noi bo va tai lieu cu",
+          confidentialHint: "Khong nhap ten khach hang, ten ca nhan, ten du an, thong tin hop dong, thong tin tai chinh chua cong khai, ma nguon, tai lieu khach hang hoac thong tin bao mat khac.",
+          counter: "{count} / 300 ky tu"
+        },
+        sections: {
+          profile: "A. Thong tin nguoi tra loi",
+          usage: "B. Tinh hinh su dung AI",
+          risk: "C. Rui ro va quan tri",
+          impact: "D. Tac dong va muc do truong thanh",
+          needs: "E. Nhu cau va van ban tu do"
+        }
+      },
       zh: {
         ui: {
           title: "全球 AI 就绪度调查",
@@ -679,6 +821,52 @@
           impact: "D. Impacto y madurez",
           needs: "E. Necesidades y texto libre"
         }
+      },
+      ko: {
+        ui: {
+          title: "글로벌 AI 도입 준비도 설문",
+          lead: "이 설문은 그룹 전체의 엔터프라이즈 LLM 도입 계획, 교육 계획, 보안 설계, 이용 규칙 정비를 지원합니다.",
+          progressTitle: "응답 진행",
+          progress: "{answered} / {total} 문항",
+          noticeTitle: "기밀 정보를 입력하지 마십시오",
+          noticeBody: "자유 입력란에는 고객명, 개인명, 프로젝트명, 계약 정보, 비공개 재무 정보, 소스 코드, 고객 자료 내용 또는 기타 기밀 정보를 입력하지 마십시오.",
+          accessTitle: "응답 코드 확인",
+          accessLead: "회사별 URL과 배포된 응답 코드로 응답을 접수합니다.",
+          companyCode: "회사 코드",
+          missingCompany: "URL에 회사 코드가 없습니다. 전달받은 회사별 URL로 접속해 주십시오.",
+          responseCode: "응답 코드",
+          responseCodeHint: "각 회사 담당자가 배포한 응답 코드를 입력하십시오. 같은 회사 코드와 응답 코드는 두 번 사용할 수 없습니다.",
+          responseCodeError: "응답 코드는 영문자, 숫자, 하이픈으로 입력하십시오.",
+          introTitle: "응답 전 확인",
+          introP1: "이 설문은 개인 평가 또는 감시를 목적으로 하지 않습니다.",
+          introP2: "응답 결과는 회사, 국가 또는 지역, 부서 단위로 집계되며 개인을 식별하는 형태로 보고되지 않습니다.",
+          introP3: "Q1부터 Q19까지는 필수입니다. Q20은 선택 사항이며, 작성하는 경우 일반화된 업무 과제만 기재하십시오.",
+          single: "단일 선택",
+          multi: "복수 선택",
+          max: "최대 {max}개",
+          textMeta: "자유 입력, 선택, 300자 이내",
+          requiredError: "이 문항은 필수입니다.",
+          maxError: "최대 {max}개까지 선택할 수 있습니다.",
+          clear: "입력 지우기",
+          submit: "응답 데이터 생성",
+          resultTitle: "응답 데이터를 생성했습니다",
+          resultBody: "응답 데이터가 관리되는 저장 위치로 전송되었습니다. 필요하면 JSON 또는 CSV를 로컬에 저장할 수도 있습니다.",
+          resultLocalOnly: "이 실행 환경에서는 서버 전송을 수행하지 않습니다. 필요에 따라 생성된 JSON 또는 CSV를 관리되는 위치에 저장하십시오.",
+          resultSaveFailed: "응답 데이터를 서버에 저장하지 못했습니다. 네트워크 상태를 확인하고 다시 시도하십시오.",
+          resultDuplicate: "이 회사 코드와 응답 코드는 이미 사용되었습니다. 중복 응답은 허용되지 않습니다.",
+          downloadJson: "JSON 저장",
+          downloadCsv: "CSV 저장",
+          placeholder: "예: 사내 규정이나 과거 자료를 찾는 시간을 줄이고 싶다",
+          confidentialHint: "고객명, 개인명, 프로젝트명, 계약 정보, 비공개 재무 정보, 소스 코드, 고객 자료 내용 또는 기타 기밀 정보를 입력하지 마십시오.",
+          counter: "{count} / 300자"
+        },
+        sections: {
+          profile: "A. 응답자 속성",
+          usage: "B. AI 이용 현황",
+          risk: "C. 리스크 및 거버넌스",
+          impact: "D. 효과 및 성숙도",
+          needs: "E. 니즈 및 자유 입력"
+        }
       }
     };
 
@@ -727,6 +915,72 @@
         q19: "Select the functions you expect from a company-wide LLM",
         q20: "Describe one business issue you would like AI to solve"
       },
+      fr: {
+        q01: "Selectionnez votre rattachement d'entreprise",
+        q02: "Selectionnez votre pays ou region",
+        q03: "Selectionnez votre departement",
+        q04: "Selectionnez votre niveau de poste",
+        q05: "Utilisez-vous actuellement l'IA generative ou des LLM pour le travail ?",
+        q06: "A quelle frequence utilisez-vous l'IA pour le travail ?",
+        q07: "Selectionnez les outils d'IA que vous utilisez",
+        q08: "Selectionnez les principales taches pour lesquelles vous utilisez l'IA",
+        q09: "Selectionnez les types d'informations que vous avez deja saisis dans des outils d'IA",
+        q10: "Les outils d'IA que vous utilisez au travail sont-ils approuves par l'entreprise ?",
+        q11: "Comprenez-vous les regles de votre entreprise ou departement concernant l'utilisation de l'IA ?",
+        q12: "Selectionnez vos preoccupations lors de l'utilisation de l'IA",
+        q13: "Dans quelle mesure l'IA a-t-elle reduit votre temps de travail ?",
+        q14: "L'IA a-t-elle ameliore la qualite de vos livrables ?",
+        q15: "A quel point l'IA est-elle integree dans votre processus de travail ?",
+        q16: "Dans votre entreprise ou departement, les dirigeants ou managers promeuvent-ils l'utilisation de l'IA ?",
+        q17: "Avez-vous recu une formation pour utiliser l'IA au travail ?",
+        q18: "Si l'entreprise fournissait un LLM d'entreprise securise (*), voudriez-vous l'utiliser ?\n* LLM d'entreprise : modele d'IA concu pour un usage professionnel avec des garanties de securite et de confidentialite.",
+        q19: "Selectionnez les fonctions attendues d'un LLM pour toute l'entreprise",
+        q20: "Decrivez un probleme metier que vous aimeriez resoudre avec l'IA"
+      },
+      pt: {
+        q01: "Selecione sua afiliacao na empresa",
+        q02: "Selecione seu pais ou regiao",
+        q03: "Selecione seu departamento",
+        q04: "Selecione seu nivel de cargo",
+        q05: "Voce usa atualmente IA generativa ou LLMs no trabalho?",
+        q06: "Com que frequencia voce usa IA no trabalho?",
+        q07: "Selecione as ferramentas de IA que voce usa",
+        q08: "Selecione as principais tarefas em que voce usa IA",
+        q09: "Selecione os tipos de informacao que voce ja inseriu em ferramentas de IA",
+        q10: "As ferramentas de IA que voce usa no trabalho sao aprovadas pela empresa?",
+        q11: "Voce entende as regras da sua empresa ou departamento para uso de IA?",
+        q12: "Selecione suas preocupacoes ao usar IA",
+        q13: "Quanto tempo de trabalho a IA ajudou voce a reduzir?",
+        q14: "A IA melhorou a qualidade dos seus entregaveis?",
+        q15: "Quao integrada a IA esta ao seu processo de trabalho?",
+        q16: "Na sua empresa ou departamento, executivos ou gestores promovem o uso de IA?",
+        q17: "Voce recebeu treinamento para usar IA no trabalho?",
+        q18: "Se a empresa fornecesse um LLM empresarial seguro (*), voce gostaria de usa-lo?\n* LLM empresarial: modelo de IA projetado para uso corporativo, com salvaguardas de seguranca e privacidade.",
+        q19: "Selecione as funcoes que voce espera de um LLM corporativo",
+        q20: "Descreva um problema de negocio que voce gostaria que a IA resolvesse"
+      },
+      vi: {
+        q01: "Chon don vi cong ty cua ban",
+        q02: "Chon quoc gia hoac khu vuc cua ban",
+        q03: "Chon phong ban cua ban",
+        q04: "Chon cap bac cong viec cua ban",
+        q05: "Ban hien co su dung AI tao sinh hoac LLM cho cong viec khong?",
+        q06: "Ban su dung AI cho cong viec thuong xuyen nhu the nao?",
+        q07: "Chon cac cong cu AI ban dang su dung",
+        q08: "Chon cac nhiem vu chinh ma ban su dung AI",
+        q09: "Chon cac loai thong tin ban da nhap vao cong cu AI",
+        q10: "Cac cong cu AI ban dung trong cong viec da duoc cong ty phe duyet chua?",
+        q11: "Ban co hieu quy tac cua cong ty hoac phong ban ve viec su dung AI khong?",
+        q12: "Chon cac moi lo ngai khi su dung AI",
+        q13: "AI da giup ban giam bao nhieu thoi gian lam viec?",
+        q14: "AI co cai thien chat luong san pham ban giao cua ban khong?",
+        q15: "AI duoc tich hop sau den muc nao vao quy trinh lam viec cua ban?",
+        q16: "Trong cong ty hoac phong ban cua ban, lanh dao hoac quan ly co thuc day viec su dung AI khong?",
+        q17: "Ban da duoc dao tao de su dung AI cho cong viec chua?",
+        q18: "Neu cong ty cung cap LLM doanh nghiep an toan (*), ban co muon su dung khong?\n* LLM doanh nghiep: mo hinh AI duoc thiet ke cho muc dich kinh doanh voi cac bien phap bao mat va quyen rieng tu.",
+        q19: "Chon cac chuc nang ban mong doi tu LLM dung chung toan cong ty",
+        q20: "Mo ta mot van de kinh doanh ma ban muon AI giai quyet"
+      },
       zh: {
         q01: "请选择所属公司",
         q02: "请选择所属国家或地区",
@@ -770,6 +1024,28 @@
         q18: "Si la empresa proporcionara un LLM empresarial seguro (*), ¿le gustaría usarlo?\n* LLM empresarial: modelo de IA diseñado para uso corporativo, con medidas de seguridad y privacidad.",
         q19: "Seleccione las funciones que espera de un LLM para toda la empresa",
         q20: "Describa un problema de negocio que le gustaría resolver con IA"
+      },
+      ko: {
+        q01: "소속 회사를 선택하십시오",
+        q02: "소속 국가 또는 지역을 선택하십시오",
+        q03: "소속 부서를 선택하십시오",
+        q04: "직위를 선택하십시오",
+        q05: "현재 업무에서 생성형 AI 또는 LLM을 사용하고 있습니까?",
+        q06: "업무에서 AI를 얼마나 자주 사용합니까?",
+        q07: "사용 중인 AI 도구를 선택하십시오",
+        q08: "AI를 사용하는 주요 업무를 선택하십시오",
+        q09: "AI 도구에 입력한 적이 있는 정보 유형을 선택하십시오",
+        q10: "업무에서 사용하는 AI 도구는 회사 승인을 받았습니까?",
+        q11: "AI 이용에 관한 회사 또는 부서 규칙을 이해하고 있습니까?",
+        q12: "AI 이용 시 우려되는 점을 선택하십시오",
+        q13: "AI 이용으로 업무 시간이 어느 정도 줄었습니까?",
+        q14: "AI가 산출물의 품질을 향상시켰습니까?",
+        q15: "AI가 귀하의 업무 프로세스에 어느 정도 통합되어 있습니까?",
+        q16: "귀하의 회사 또는 부서에서 경영진이나 관리자가 AI 활용을 추진하고 있습니까?",
+        q17: "업무에서 AI를 사용하기 위한 교육 또는 연수를 받은 적이 있습니까?",
+        q18: "회사가 안전한 엔터프라이즈 LLM(*)을 제공한다면 사용하고 싶습니까?\n* 엔터프라이즈 LLM: 보안과 개인정보 보호를 고려해 기업 이용을 목적으로 설계된 AI 모델",
+        q19: "전사 LLM에 기대하는 기능을 선택하십시오",
+        q20: "AI로 해결하고 싶은 업무 과제를 하나 작성하십시오"
       }
     };
 
@@ -816,6 +1092,69 @@
         strongly_want_to_use: "Strongly want to use", want_to_use: "Want to use", depends_on_conditions: "Depends on conditions", do_not_really_want_to_use: "Do not really want to use", do_not_want_to_use: "Do not want to use",
         secure_chat_ai: "Secure chat AI", internal_document_search: "Internal document search", proposal_creation_support: "Proposal creation support", contract_review_support: "Contract review support", test_design_support: "Test design support", customer_response_support: "Customer response support", business_system_integration: "Business system integration", ai_agent_task_automation: "Task automation by AI agents"
       },
+      fr: {
+        japan_headquarters: "Siege au Japon", domestic_subsidiary: "Filiale nationale", overseas_subsidiary: "Filiale internationale", other: "Autre",
+        japan: "Japon", asia_pacific: "Asie-Pacifique", north_america: "Amerique du Nord", europe: "Europe",
+        corporate_planning: "Planification d'entreprise", sales: "Ventes", marketing: "Marketing", hr: "Ressources humaines", accounting_finance: "Comptabilite / Finance", legal: "Juridique", it: "Systemes d'information", development_engineering: "Developpement / Ingenierie", qa_testing: "QA / Tests", customer_support: "Support client", bpo_operations: "BPO / Operations", administration: "Administration",
+        executive: "Direction", department_head: "Responsable de departement", manager: "Manager", leader: "Leader", member: "Membre",
+        using: "J'utilise actuellement", trial_use: "Utilisation a titre d'essai", used_before_not_now: "Utilise auparavant mais pas actuellement", not_using: "Je n'utilise pas", not_using_due_to_ban_or_unclear_rules: "Je n'utilise pas car c'est interdit ou les regles sont floues",
+        daily: "Tous les jours", several_times_week: "Plusieurs fois par semaine", several_times_month: "Plusieurs fois par mois", rarely: "Rarement",
+        chatgpt: "ChatGPT", microsoft_copilot: "Microsoft Copilot", google_gemini: "Google Gemini", claude: "Claude", perplexity: "Perplexity", internal_ai_chatbot: "Chatbot IA interne", translation_ai: "IA de traduction", meeting_minutes_ai: "IA de compte rendu", code_generation_ai: "IA de generation de code",
+        writing: "Redaction", summarization: "Synthese", translation: "Traduction", email_writing: "Redaction d'e-mails", meeting_minutes: "Comptes rendus", research: "Recherche", proposal_creation: "Creation de propositions", contract_review_support: "Aide a la revue de contrats", data_analysis: "Analyse de donnees", code_generation: "Generation de code", code_review: "Revue de code source", specification_creation: "Creation de specifications", test_case_creation: "Creation de cas de test", test_automation: "Automatisation des tests", inquiry_response: "Reponse aux demandes", faq_creation: "Creation de FAQ", image_video_content_creation: "Creation d'images, videos ou contenus",
+        public_information_only: "Informations publiques uniquement", internal_general_information: "Informations internes generales", internal_confidential_information: "Informations internes confidentielles", customer_provided_materials: "Documents recus de clients", personal_information: "Informations personnelles", contracts: "Contrats", financial_information: "Informations financieres", source_code: "Code source", specifications_design_docs: "Specifications / Documents de conception", incident_defect_information: "Informations d'incident / defaut", do_not_remember: "Je ne me souviens pas",
+        company_approved_tool: "Outils approuves par l'entreprise", department_decision: "Utilisation par decision du departement", personal_decision: "Utilisation par decision personnelle", approval_status_unknown: "Statut d'approbation inconnu",
+        fully_understand: "Je comprends parfaitement", mostly_understand: "Je comprends en grande partie", do_not_understand_much: "Je comprends peu", do_not_understand_at_all: "Je ne comprends pas du tout", do_not_know_if_rules_exist: "Je ne sais pas si des regles existent",
+        confidential_information_leakage: "Fuite d'informations confidentielles", personal_information_leakage: "Fuite de donnees personnelles", customer_contract_violation: "Violation de contrat client", copyright_infringement: "Atteinte au droit d'auteur", answer_accuracy: "Exactitude des reponses", responsibility_for_output: "Responsabilite des resultats", usage_log_management: "Gestion des journaux d'utilisation", internal_rules_unclear: "Regles internes floues", cannot_explain_to_customers: "Impossible d'expliquer aux clients", no_concern: "Aucune preoccupation particuliere",
+        reduced_30_percent_or_more: "Reduction de 30 % ou plus", reduced_10_to_30_percent: "Reduction de 10 a 30 %", reduced_5_to_10_percent: "Reduction de 5 a 10 %", reduced_less_than_5_percent: "Reduction inferieure a 5 %", no_effect_felt: "Aucun effet ressenti", more_effort_required: "Demande plus d'efforts", cannot_judge: "Impossible de juger",
+        greatly_improved: "Fortement amelioree", somewhat_improved: "Amelioree dans une certaine mesure", slightly_improved: "Legerement amelioree", unchanged: "Inchangee", declined: "Diminuee",
+        personal_trial_only: "Essai personnel uniquement", supportive_use_in_some_tasks: "Utilisation d'appui pour certaines taches", standard_team_work: "Travail standard de l'equipe", formal_department_process: "Integre aux processus formels du departement", essential_to_work: "Essentiel au travail",
+        executives_clearly_promote: "La direction le promeut clairement", department_heads_managers_promote: "Les responsables ou managers le promeuvent", some_leaders_promote: "Certains leaders le promeuvent", left_to_frontline: "Laisse aux equipes de terrain", cautious_or_restrictive: "Prudent ou restrictif", do_not_know: "Je ne sais pas",
+        company_official_training: "Formation officielle de l'entreprise recue", department_training: "Formation du departement recue", external_training: "Formation externe recue", self_learning: "Autoformation", no_training: "Aucune formation recue", do_not_know_if_training_exists: "Je ne sais pas si une formation existe",
+        strongly_want_to_use: "Je veux fortement l'utiliser", want_to_use: "Je veux l'utiliser", depends_on_conditions: "Cela depend des conditions", do_not_really_want_to_use: "Je ne veux pas vraiment l'utiliser", do_not_want_to_use: "Je ne veux pas l'utiliser",
+        secure_chat_ai: "Chat IA securise", internal_document_search: "Recherche de documents internes", proposal_creation_support: "Aide a la creation de propositions", contract_review_support: "Aide a la revue de contrats", test_design_support: "Aide a la conception de tests", customer_response_support: "Aide a la reponse client", business_system_integration: "Integration aux systemes metier", ai_agent_task_automation: "Automatisation par agents IA"
+      },
+      pt: {
+        japan_headquarters: "Matriz no Japao", domestic_subsidiary: "Subsidiaria nacional", overseas_subsidiary: "Subsidiaria internacional", other: "Outro",
+        japan: "Japao", asia_pacific: "Asia-Pacifico", north_america: "America do Norte", europe: "Europa",
+        corporate_planning: "Planejamento corporativo", sales: "Vendas", marketing: "Marketing", hr: "Recursos humanos", accounting_finance: "Contabilidade / Financas", legal: "Juridico", it: "Sistemas de informacao", development_engineering: "Desenvolvimento / Engenharia", qa_testing: "QA / Testes", customer_support: "Suporte ao cliente", bpo_operations: "BPO / Operacoes", administration: "Administracao",
+        executive: "Executivo", department_head: "Chefe de departamento", manager: "Gerente", leader: "Lider", member: "Membro",
+        using: "Uso atualmente", trial_use: "Uso em teste", used_before_not_now: "Usei antes, mas nao atualmente", not_using: "Nao uso", not_using_due_to_ban_or_unclear_rules: "Nao uso porque e proibido ou as regras nao estao claras",
+        daily: "Diariamente", several_times_week: "Varias vezes por semana", several_times_month: "Varias vezes por mes", rarely: "Raramente",
+        chatgpt: "ChatGPT", microsoft_copilot: "Microsoft Copilot", google_gemini: "Google Gemini", claude: "Claude", perplexity: "Perplexity", internal_ai_chatbot: "Chatbot interno de IA", translation_ai: "IA de traducao", meeting_minutes_ai: "IA para atas de reuniao", code_generation_ai: "IA de geracao de codigo",
+        writing: "Redacao", summarization: "Resumo", translation: "Traducao", email_writing: "Redacao de e-mails", meeting_minutes: "Atas de reuniao", research: "Pesquisa", proposal_creation: "Criacao de propostas", contract_review_support: "Apoio a revisao de contratos", data_analysis: "Analise de dados", code_generation: "Geracao de codigo", code_review: "Revisao de codigo-fonte", specification_creation: "Criacao de especificacoes", test_case_creation: "Criacao de casos de teste", test_automation: "Automacao de testes", inquiry_response: "Resposta a consultas", faq_creation: "Criacao de FAQ", image_video_content_creation: "Criacao de imagens, videos ou conteudo",
+        public_information_only: "Apenas informacoes publicas", internal_general_information: "Informacoes internas gerais", internal_confidential_information: "Informacoes internas confidenciais", customer_provided_materials: "Materiais recebidos de clientes", personal_information: "Informacoes pessoais", contracts: "Contratos", financial_information: "Informacoes financeiras", source_code: "Codigo-fonte", specifications_design_docs: "Especificacoes / Documentos de design", incident_defect_information: "Informacoes de incidentes / defeitos", do_not_remember: "Nao me lembro do que inseri",
+        company_approved_tool: "Uso ferramentas aprovadas pela empresa", department_decision: "Uso por decisao do departamento", personal_decision: "Uso por decisao pessoal", approval_status_unknown: "Status de aprovacao desconhecido",
+        fully_understand: "Entendo totalmente", mostly_understand: "Entendo em grande parte", do_not_understand_much: "Nao entendo muito", do_not_understand_at_all: "Nao entendo nada", do_not_know_if_rules_exist: "Nao sei se existem regras",
+        confidential_information_leakage: "Vazamento de informacoes confidenciais", personal_information_leakage: "Vazamento de informacoes pessoais", customer_contract_violation: "Violacao de contrato com cliente", copyright_infringement: "Violacao de direitos autorais", answer_accuracy: "Precisao das respostas", responsibility_for_output: "Responsabilidade pelos resultados", usage_log_management: "Gestao de logs de uso", internal_rules_unclear: "Regras internas pouco claras", cannot_explain_to_customers: "Nao consigo explicar aos clientes", no_concern: "Nenhuma preocupacao especifica",
+        reduced_30_percent_or_more: "Reducao de 30% ou mais", reduced_10_to_30_percent: "Reducao de 10 a 30%", reduced_5_to_10_percent: "Reducao de 5 a 10%", reduced_less_than_5_percent: "Reducao inferior a 5%", no_effect_felt: "Nenhum efeito percebido", more_effort_required: "Exige mais esforco", cannot_judge: "Nao consigo avaliar",
+        greatly_improved: "Melhorou muito", somewhat_improved: "Melhorou em certa medida", slightly_improved: "Melhorou um pouco", unchanged: "Sem mudanca", declined: "Piorou",
+        personal_trial_only: "Apenas teste pessoal", supportive_use_in_some_tasks: "Uso de apoio em algumas tarefas", standard_team_work: "Usado como trabalho padrao da equipe", formal_department_process: "Integrado aos processos formais do departamento", essential_to_work: "Essencial para o trabalho",
+        executives_clearly_promote: "Executivos promovem claramente", department_heads_managers_promote: "Chefes de departamento ou gerentes promovem", some_leaders_promote: "Alguns lideres promovem", left_to_frontline: "Deixado para as equipes de linha de frente", cautious_or_restrictive: "Cauteloso ou restritivo", do_not_know: "Nao sei",
+        company_official_training: "Recebi treinamento oficial da empresa", department_training: "Recebi treinamento do departamento", external_training: "Recebi treinamento externo", self_learning: "Aprendo por conta propria", no_training: "Nao recebi treinamento", do_not_know_if_training_exists: "Nao sei se existe treinamento",
+        strongly_want_to_use: "Quero muito usar", want_to_use: "Quero usar", depends_on_conditions: "Depende das condicoes", do_not_really_want_to_use: "Nao quero muito usar", do_not_want_to_use: "Nao quero usar",
+        secure_chat_ai: "Chat de IA seguro", internal_document_search: "Pesquisa de documentos internos", proposal_creation_support: "Apoio a criacao de propostas", contract_review_support: "Apoio a revisao de contratos", test_design_support: "Apoio a desenho de testes", customer_response_support: "Apoio ao atendimento ao cliente", business_system_integration: "Integracao com sistemas de negocio", ai_agent_task_automation: "Automacao de tarefas por agentes de IA"
+      },
+      vi: {
+        japan_headquarters: "Tru so chinh tai Nhat Ban", domestic_subsidiary: "Cong ty con trong nuoc", overseas_subsidiary: "Cong ty con o nuoc ngoai", other: "Khac",
+        japan: "Nhat Ban", asia_pacific: "Chau A - Thai Binh Duong", north_america: "Bac My", europe: "Chau Au",
+        corporate_planning: "Ke hoach doanh nghiep", sales: "Kinh doanh", marketing: "Tiep thi", hr: "Nhan su", accounting_finance: "Ke toan / Tai chinh", legal: "Phap che", it: "He thong thong tin", development_engineering: "Phat trien / Ky thuat", qa_testing: "QA / Kiem thu", customer_support: "Ho tro khach hang", bpo_operations: "BPO / Van hanh", administration: "Hanh chinh",
+        executive: "Lanh dao cap cao", department_head: "Truong bo phan", manager: "Quan ly", leader: "Truong nhom", member: "Thanh vien",
+        using: "Dang su dung", trial_use: "Dang dung thu", used_before_not_now: "Da tung dung nhung hien khong dung", not_using: "Khong su dung", not_using_due_to_ban_or_unclear_rules: "Khong dung vi bi cam hoac quy tac chua ro",
+        daily: "Hang ngay", several_times_week: "Vai lan moi tuan", several_times_month: "Vai lan moi thang", rarely: "Hiem khi",
+        chatgpt: "ChatGPT", microsoft_copilot: "Microsoft Copilot", google_gemini: "Google Gemini", claude: "Claude", perplexity: "Perplexity", internal_ai_chatbot: "Chatbot AI noi bo", translation_ai: "AI dich thuat", meeting_minutes_ai: "AI ghi bien ban hop", code_generation_ai: "AI tao ma",
+        writing: "Viet noi dung", summarization: "Tom tat", translation: "Dich thuat", email_writing: "Viet email", meeting_minutes: "Bien ban hop", research: "Nghien cuu", proposal_creation: "Tao de xuat", contract_review_support: "Ho tro ra soat hop dong", data_analysis: "Phan tich du lieu", code_generation: "Tao ma", code_review: "Ra soat ma nguon", specification_creation: "Tao tai lieu dac ta", test_case_creation: "Tao ca kiem thu", test_automation: "Tu dong hoa kiem thu", inquiry_response: "Tra loi yeu cau", faq_creation: "Tao FAQ", image_video_content_creation: "Tao hinh anh, video hoac noi dung",
+        public_information_only: "Chi thong tin cong khai", internal_general_information: "Thong tin noi bo thong thuong", internal_confidential_information: "Thong tin noi bo bao mat", customer_provided_materials: "Tai lieu nhan tu khach hang", personal_information: "Thong tin ca nhan", contracts: "Hop dong", financial_information: "Thong tin tai chinh", source_code: "Ma nguon", specifications_design_docs: "Tai lieu dac ta / thiet ke", incident_defect_information: "Thong tin su co / loi", do_not_remember: "Khong nho da nhap gi",
+        company_approved_tool: "Dung cong cu duoc cong ty phe duyet", department_decision: "Dung theo quyet dinh cua phong ban", personal_decision: "Dung theo quyet dinh ca nhan", approval_status_unknown: "Khong ro trang thai phe duyet",
+        fully_understand: "Hieu day du", mostly_understand: "Hieu phan lon", do_not_understand_much: "Khong hieu ro lam", do_not_understand_at_all: "Hoan toan khong hieu", do_not_know_if_rules_exist: "Khong biet co quy tac hay khong",
+        confidential_information_leakage: "Ro ri thong tin bao mat", personal_information_leakage: "Ro ri thong tin ca nhan", customer_contract_violation: "Vi pham hop dong khach hang", copyright_infringement: "Vi pham ban quyen", answer_accuracy: "Do chinh xac cua cau tra loi", responsibility_for_output: "Trach nhiem voi dau ra", usage_log_management: "Quan ly nhat ky su dung", internal_rules_unclear: "Quy tac noi bo chua ro", cannot_explain_to_customers: "Khong the giai thich voi khach hang", no_concern: "Khong co lo ngai dac biet",
+        reduced_30_percent_or_more: "Giam 30% tro len", reduced_10_to_30_percent: "Giam 10-30%", reduced_5_to_10_percent: "Giam 5-10%", reduced_less_than_5_percent: "Giam duoi 5%", no_effect_felt: "Chua cam nhan hieu qua", more_effort_required: "Can nhieu cong suc hon", cannot_judge: "Khong the danh gia",
+        greatly_improved: "Cai thien rat nhieu", somewhat_improved: "Cai thien phan nao", slightly_improved: "Cai thien nhe", unchanged: "Khong thay doi", declined: "Giam sut",
+        personal_trial_only: "Chi thu nghiem ca nhan", supportive_use_in_some_tasks: "Dung ho tro trong mot so nhiem vu", standard_team_work: "Dung nhu cong viec tieu chuan cua nhom", formal_department_process: "Da tich hop vao quy trinh chinh thuc cua phong ban", essential_to_work: "Thiet yeu cho cong viec",
+        executives_clearly_promote: "Lanh dao cap cao thuc day ro rang", department_heads_managers_promote: "Truong bo phan hoac quan ly thuc day", some_leaders_promote: "Mot so lanh dao thuc day", left_to_frontline: "De cho tuyen dau tu quyet", cautious_or_restrictive: "Than trong hoac han che", do_not_know: "Khong biet",
+        company_official_training: "Da nhan dao tao chinh thuc cua cong ty", department_training: "Da nhan dao tao cua phong ban", external_training: "Da nhan dao tao ben ngoai", self_learning: "Tu hoc", no_training: "Chua duoc dao tao", do_not_know_if_training_exists: "Khong biet co dao tao hay khong",
+        strongly_want_to_use: "Rat muon su dung", want_to_use: "Muon su dung", depends_on_conditions: "Tuy thuoc dieu kien", do_not_really_want_to_use: "Khong that su muon su dung", do_not_want_to_use: "Khong muon su dung",
+        secure_chat_ai: "Chat AI an toan", internal_document_search: "Tim kiem tai lieu noi bo", proposal_creation_support: "Ho tro tao de xuat", contract_review_support: "Ho tro ra soat hop dong", test_design_support: "Ho tro thiet ke kiem thu", customer_response_support: "Ho tro phan hoi khach hang", business_system_integration: "Tich hop he thong nghiep vu", ai_agent_task_automation: "Tu dong hoa tac vu bang tac nhan AI"
+      },
       zh: {
         japan_headquarters: "日本总部", domestic_subsidiary: "日本国内子公司", overseas_subsidiary: "海外子公司", other: "其他",
         japan: "日本", asia_pacific: "亚太", north_america: "北美", europe: "欧洲",
@@ -857,6 +1196,27 @@
         company_official_training: "Recibí capacitación oficial de la empresa", department_training: "Recibí capacitación del departamento", external_training: "Recibí capacitación externa", self_learning: "Aprendo por mi cuenta", no_training: "No he recibido capacitación", do_not_know_if_training_exists: "No sé si existe capacitación",
         strongly_want_to_use: "Me gustaría mucho usarlo", want_to_use: "Me gustaría usarlo", depends_on_conditions: "Depende de las condiciones", do_not_really_want_to_use: "No me gustaría mucho usarlo", do_not_want_to_use: "No quiero usarlo",
         secure_chat_ai: "Chat de IA seguro", internal_document_search: "Búsqueda de documentos internos", proposal_creation_support: "Apoyo a creación de propuestas", contract_review_support: "Apoyo a revisión de contratos", test_design_support: "Apoyo al diseño de pruebas", customer_response_support: "Apoyo a atención al cliente", business_system_integration: "Integración con sistemas de negocio", ai_agent_task_automation: "Automatización de tareas mediante agentes de IA"
+      },
+      ko: {
+        japan_headquarters: "일본 본사", domestic_subsidiary: "국내 자회사", overseas_subsidiary: "해외 자회사", other: "기타",
+        japan: "일본", asia_pacific: "아시아 태평양", north_america: "북미", europe: "유럽",
+        corporate_planning: "경영기획", sales: "영업", marketing: "마케팅", hr: "인사", accounting_finance: "회계 / 재무", legal: "법무", it: "정보시스템", development_engineering: "개발 / 엔지니어링", qa_testing: "QA / 테스트", customer_support: "고객 지원", bpo_operations: "BPO / 운영", administration: "관리",
+        executive: "임원", department_head: "부서장", manager: "관리자", leader: "리더", member: "구성원",
+        using: "현재 사용 중", trial_use: "시험 사용 중", used_before_not_now: "이전에 사용했지만 현재는 미사용", not_using: "사용하지 않음", not_using_due_to_ban_or_unclear_rules: "금지되어 있거나 규칙이 불명확해 사용하지 않음",
+        daily: "매일", several_times_week: "주 몇 회", several_times_month: "월 몇 회", rarely: "거의 사용하지 않음",
+        chatgpt: "ChatGPT", microsoft_copilot: "Microsoft Copilot", google_gemini: "Google Gemini", claude: "Claude", perplexity: "Perplexity", internal_ai_chatbot: "사내 AI 챗봇", translation_ai: "번역 AI", meeting_minutes_ai: "회의록 AI", code_generation_ai: "코드 생성 AI",
+        writing: "문서 작성", summarization: "요약", translation: "번역", email_writing: "이메일 작성", meeting_minutes: "회의록", research: "조사", proposal_creation: "제안서 작성", contract_review_support: "계약서 검토 지원", data_analysis: "데이터 분석", code_generation: "코드 생성", code_review: "소스 코드 리뷰", specification_creation: "사양서 작성", test_case_creation: "테스트 케이스 작성", test_automation: "테스트 자동화", inquiry_response: "문의 대응", faq_creation: "FAQ 작성", image_video_content_creation: "이미지, 동영상 또는 콘텐츠 작성",
+        public_information_only: "공개 정보만", internal_general_information: "사내 일반 정보", internal_confidential_information: "사내 기밀 정보", customer_provided_materials: "고객 제공 자료", personal_information: "개인 정보", contracts: "계약서", financial_information: "재무 정보", source_code: "소스 코드", specifications_design_docs: "사양서 / 설계서", incident_defect_information: "장애 / 결함 정보", do_not_remember: "무엇을 입력했는지 기억나지 않음",
+        company_approved_tool: "회사 승인 도구 사용", department_decision: "부서 판단으로 사용", personal_decision: "개인 판단으로 사용", approval_status_unknown: "승인 상태를 모름",
+        fully_understand: "완전히 이해함", mostly_understand: "대체로 이해함", do_not_understand_much: "별로 이해하지 못함", do_not_understand_at_all: "전혀 이해하지 못함", do_not_know_if_rules_exist: "규칙 존재 여부를 모름",
+        confidential_information_leakage: "기밀 정보 유출", personal_information_leakage: "개인 정보 유출", customer_contract_violation: "고객 계약 위반", copyright_infringement: "저작권 침해", answer_accuracy: "답변 정확성", responsibility_for_output: "출력물 책임", usage_log_management: "이용 로그 관리", internal_rules_unclear: "사내 규칙 불명확", cannot_explain_to_customers: "고객에게 설명할 수 없음", no_concern: "특별한 우려 없음",
+        reduced_30_percent_or_more: "30% 이상 감소", reduced_10_to_30_percent: "10-30% 감소", reduced_5_to_10_percent: "5-10% 감소", reduced_less_than_5_percent: "5% 미만 감소", no_effect_felt: "효과를 느끼지 못함", more_effort_required: "오히려 더 많은 노력이 필요함", cannot_judge: "판단할 수 없음",
+        greatly_improved: "크게 향상됨", somewhat_improved: "어느 정도 향상됨", slightly_improved: "약간 향상됨", unchanged: "변화 없음", declined: "저하됨",
+        personal_trial_only: "개인적으로만 시험 중", supportive_use_in_some_tasks: "일부 작업에서 보조적으로 사용", standard_team_work: "팀 표준 업무로 사용", formal_department_process: "부서 공식 업무 프로세스에 통합", essential_to_work: "업무에 필수적",
+        executives_clearly_promote: "경영진이 명확히 추진", department_heads_managers_promote: "부서장 또는 관리자가 추진", some_leaders_promote: "일부 리더가 추진", left_to_frontline: "현장 판단에 맡김", cautious_or_restrictive: "신중하거나 제한적", do_not_know: "모름",
+        company_official_training: "회사 공식 교육을 받음", department_training: "부서 교육을 받음", external_training: "외부 교육을 받음", self_learning: "자율 학습 중", no_training: "교육을 받은 적 없음", do_not_know_if_training_exists: "교육 존재 여부를 모름",
+        strongly_want_to_use: "매우 사용하고 싶음", want_to_use: "사용하고 싶음", depends_on_conditions: "조건에 따라 사용하고 싶음", do_not_really_want_to_use: "별로 사용하고 싶지 않음", do_not_want_to_use: "사용하고 싶지 않음",
+        secure_chat_ai: "안전한 채팅 AI", internal_document_search: "사내 문서 검색", proposal_creation_support: "제안서 작성 지원", contract_review_support: "계약서 검토 지원", test_design_support: "테스트 설계 지원", customer_response_support: "고객 대응 지원", business_system_integration: "업무 시스템 연계", ai_agent_task_automation: "AI 에이전트 업무 자동화"
       }
     };
 
@@ -873,6 +1233,10 @@
 
     function pickInitialLanguage() {
       const browserLanguage = (navigator.language || "ja").toLowerCase();
+      if (browserLanguage.startsWith("fr")) return "fr";
+      if (browserLanguage.startsWith("pt")) return "pt";
+      if (browserLanguage.startsWith("vi")) return "vi";
+      if (browserLanguage.startsWith("ko")) return "ko";
       if (browserLanguage.startsWith("zh")) return "zh";
       if (browserLanguage.startsWith("es")) return "es";
       if (browserLanguage.startsWith("en")) return "en";
@@ -881,7 +1245,8 @@
 
     function t(path, replacements = {}) {
       const [group, key] = path.split(".");
-      let value = i18n[state.language][group][key];
+      const languageBundle = i18n[state.language] || i18n.en;
+      let value = languageBundle[group][key] || i18n.en[group][key];
       Object.entries(replacements).forEach(([token, replacement]) => {
         value = value.replace(`{${token}}`, replacement);
       });
@@ -949,7 +1314,13 @@
     }
 
     function optionLabel(code) {
-      return optionText[state.language][code] || optionText.en[code] || code;
+      const languageOptions = optionText[state.language] || optionText.en;
+      return languageOptions[code] || optionText.en[code] || code;
+    }
+
+    function questionLabel(id) {
+      const languageQuestions = questionText[state.language] || questionText.en;
+      return languageQuestions[id] || questionText.en[id] || id;
     }
 
     function getSavedAnswers() {
@@ -1027,7 +1398,9 @@
     function renderQuestions() {
       questionContainer.innerHTML = sections.map((section) => {
         const body = section.questions.map((id) => renderQuestion(id)).join("");
-        return `<fieldset><legend>${i18n[state.language].sections[section.id]}</legend>${body}</fieldset>`;
+        const languageBundle = i18n[state.language] || i18n.en;
+        const sectionTitle = languageBundle.sections[section.id] || i18n.en.sections[section.id];
+        return `<fieldset><legend>${sectionTitle}</legend>${body}</fieldset>`;
       }).join("");
     }
 
@@ -1041,7 +1414,7 @@
           <div class="question-head">
             <span class="num">Q${number}</span>
             <div>
-              <p class="question-title">${questionText[state.language][id]}</p>
+              <p class="question-title">${questionLabel(id)}</p>
               <p class="meta">${meta}</p>
             </div>
           </div>
@@ -1063,7 +1436,7 @@
       const options = question.options.map((code) => (
         `<label class="option"><input type="${inputType}" name="${id}" value="${code}"><span>${optionLabel(code)}</span></label>`
       )).join("");
-      return `<div class="options"${role} aria-label="${questionText[state.language][id]}">${options}</div>`;
+      return `<div class="options"${role} aria-label="${questionLabel(id)}">${options}</div>`;
     }
 
     function renderText(id, question) {

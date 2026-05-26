@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI readiness survey admin</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f8fb;
+      --panel: #ffffff;
+      --ink: #172033;
+      --muted: #637083;
+      --line: #d9dee8;
+      --accent: #1f6feb;
+      --accent-soft: #eaf2ff;
+      --danger: #b42318;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+    }
+
+    header {
+      padding: 24px 32px 18px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+    }
+
+    main {
+      padding: 24px 32px 40px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .subhead {
+      color: var(--muted);
+      margin-top: 4px;
+      font-size: 14px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      border-radius: 6px;
+      padding: 9px 14px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      color: var(--accent);
+      background: var(--panel);
+    }
+
+    .status {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .error {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .metric,
+    section,
+    .question {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .metric {
+      padding: 16px;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .metric-value {
+      font-size: 26px;
+      font-weight: 700;
+      margin-top: 4px;
+      overflow-wrap: anywhere;
+    }
+
+    section {
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .two-column {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 9px 8px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .bar-track {
+      height: 8px;
+      background: #eef1f6;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .bar {
+      height: 100%;
+      background: var(--accent);
+      min-width: 2px;
+    }
+
+    .chart-panel {
+      display: grid;
+      grid-template-columns: minmax(170px, 220px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: center;
+    }
+
+    .pie-chart {
+      width: min(100%, 210px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--pie-gradient, #eef1f6);
+      position: relative;
+      margin: 2px auto 10px;
+      box-shadow: inset 0 0 0 1px rgba(23, 32, 51, 0.08);
+    }
+
+    .pie-chart::after {
+      content: "";
+      position: absolute;
+      inset: 27%;
+      border-radius: 50%;
+      background: var(--panel);
+      box-shadow: 0 0 0 1px rgba(23, 32, 51, 0.06);
+    }
+
+    .pie-total {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 1;
+      font-weight: 700;
+      font-size: 22px;
+    }
+
+    .legend {
+      display: grid;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .legend-item {
+      display: grid;
+      grid-template-columns: 12px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      background: var(--swatch);
+    }
+
+    .legend-label {
+      overflow-wrap: anywhere;
+    }
+
+    .legend-count {
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .questions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .question {
+      padding: 14px;
+    }
+
+    .question-meta {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .sample-list {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 14px;
+      padding: 8px 0;
+    }
+
+    @media (max-width: 860px) {
+      header,
+      main {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .metric-grid,
+      .two-column,
+      .questions,
+      .chart-panel {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>アンケート管理</h1>
+    <p class="subhead">保存済み回答を読み取り、最新状態を自動集計します。</p>
+  </header>
+  <main>
+    <div class="toolbar">
+      <div>
+        <button type="button" id="refreshButton">再集計</button>
+        <button type="button" class="secondary" id="downloadButton">集計JSONを保存</button>
+      </div>
+      <p class="status" id="statusText">読み込み中...</p>
+    </div>
+
+    <div class="metric-grid" id="metrics"></div>
+
+    <div class="two-column">
+      <section>
+        <h2>言語別</h2>
+        <div id="languageTable"></div>
+      </section>
+      <section>
+        <h2>会社別</h2>
+        <div id="companyTable"></div>
+      </section>
+    </div>
+
+    <section>
+      <h2>日別回答数</h2>
+      <div id="dateTable"></div>
+    </section>
+
+    <section>
+      <h2>設問別集計</h2>
+      <div class="questions" id="questions"></div>
+    </section>
+  </main>
+
+  <script>
+    let latestSummary = null;
+
+    const questionLabels = {
+      q01: "所属会社",
+      q02: "所属国・地域",
+      q03: "所属部門",
+      q04: "職位",
+      q05: "AI利用有無",
+      q06: "AI利用頻度",
+      q07: "利用AIツール",
+      q08: "利用業務",
+      q09: "入力情報",
+      q10: "会社承認状況",
+      q11: "ルール理解",
+      q12: "不安点",
+      q13: "業務時間削減",
+      q14: "品質向上",
+      q15: "業務プロセス統合度",
+      q16: "推進状況",
+      q17: "教育・研修",
+      q18: "利用意向",
+      q19: "期待機能",
+      q20: "自由記述"
+    };
+
+    const chartColors = [
+      "#1f6feb",
+      "#14a38b",
+      "#f59e0b",
+      "#d9468f",
+      "#7c3aed",
+      "#ef4444",
+      "#0f766e",
+      "#64748b",
+      "#84cc16",
+      "#0891b2"
+    ];
+
+    const storageLabels = {
+      local_file: "ローカルファイル",
+      azure_blob: "Azure Blob Storage"
+    };
+
+    const languageLabels = {
+      ja: "日本語",
+      en: "英語",
+      fr: "フランス語",
+      es: "スペイン語",
+      pt: "ポルトガル語",
+      vi: "ベトナム語",
+      zh: "中国語",
+      ko: "韓国語",
+      "未回答": "未回答"
+    };
+
+    const optionLabels = {
+      japan_headquarters: "日本本社", domestic_subsidiary: "国内子会社", overseas_subsidiary: "海外子会社", other: "その他",
+      japan: "日本", asia_pacific: "アジア太平洋", north_america: "北米", europe: "欧州",
+      corporate_planning: "経営企画", sales: "営業", marketing: "マーケティング", hr: "人事", accounting_finance: "経理・財務", legal: "法務", it: "情報システム", development_engineering: "開発・技術", qa_testing: "QA・テスト", customer_support: "カスタマーサポート", bpo_operations: "BPO・オペレーション", administration: "管理部門",
+      executive: "経営層", department_head: "部門長", manager: "マネージャー", leader: "リーダー", member: "メンバー",
+      using: "利用している", trial_use: "試験的に利用している", used_before_not_now: "過去に利用したが現在は利用していない", not_using: "利用していない", not_using_due_to_ban_or_unclear_rules: "利用禁止またはルール不明のため使っていない",
+      daily: "毎日", several_times_week: "週に数回", several_times_month: "月に数回", rarely: "ほとんど使わない",
+      chatgpt: "ChatGPT", microsoft_copilot: "Microsoft Copilot", google_gemini: "Google Gemini", claude: "Claude", perplexity: "Perplexity", internal_ai_chatbot: "社内AIチャットボット", translation_ai: "翻訳AI", meeting_minutes_ai: "議事録AI", code_generation_ai: "コード生成AI",
+      writing: "文章作成", summarization: "要約", translation: "翻訳", email_writing: "メール作成", meeting_minutes: "議事録作成", research: "調査・リサーチ", proposal_creation: "提案書作成", contract_review_support: "契約書レビュー補助", data_analysis: "データ分析", code_generation: "コード生成", code_review: "ソースコードレビュー", specification_creation: "仕様書作成", test_case_creation: "テストケース作成", test_automation: "テスト自動化", inquiry_response: "問い合わせ対応", faq_creation: "FAQ作成", image_video_content_creation: "画像・動画・コンテンツ制作",
+      public_information_only: "公開情報のみ", internal_general_information: "社内一般情報", internal_confidential_information: "社内機密情報", customer_provided_materials: "顧客から受領した資料", personal_information: "個人情報", contracts: "契約書", financial_information: "財務情報", source_code: "ソースコード", specifications_design_docs: "仕様書・設計書", incident_defect_information: "障害情報・不具合情報", do_not_remember: "入力した内容を覚えていない",
+      company_approved_tool: "会社承認済みのツールを使っている", department_decision: "部門判断で使っている", personal_decision: "個人判断で使っている", approval_status_unknown: "承認状況が分からない",
+      fully_understand: "十分理解している", mostly_understand: "ある程度理解している", do_not_understand_much: "あまり理解していない", do_not_understand_at_all: "まったく理解していない", do_not_know_if_rules_exist: "ルールがあるか分からない",
+      confidential_information_leakage: "機密情報漏えい", personal_information_leakage: "個人情報漏えい", customer_contract_violation: "顧客契約違反", copyright_infringement: "著作権侵害", answer_accuracy: "回答の正確性", responsibility_for_output: "出力内容の責任所在", usage_log_management: "利用ログの管理", internal_rules_unclear: "社内ルールが不明", cannot_explain_to_customers: "顧客に説明できない", no_concern: "特に不安はない",
+      reduced_30_percent_or_more: "30%以上削減", reduced_10_to_30_percent: "10〜30%削減", reduced_5_to_10_percent: "5〜10%削減", reduced_less_than_5_percent: "5%未満の削減", no_effect_felt: "効果は感じていない", more_effort_required: "むしろ手間が増えている", cannot_judge: "判断できない",
+      greatly_improved: "大きく向上", somewhat_improved: "ある程度向上", slightly_improved: "少し向上", unchanged: "変わらない", declined: "低下している",
+      personal_trial_only: "個人的に試しているだけ", supportive_use_in_some_tasks: "一部作業で補助的に使っている", standard_team_work: "チーム内の標準作業として使っている", formal_department_process: "部門の正式な業務プロセスに組み込まれている", essential_to_work: "AIなしでは業務が成立しないレベルで使っている",
+      executives_clearly_promote: "経営層が明確に推進している", department_heads_managers_promote: "部門長・管理職が推進している", some_leaders_promote: "一部のリーダーが推進している", left_to_frontline: "現場任せである", cautious_or_restrictive: "むしろ慎重・抑制的である", do_not_know: "分からない",
+      company_official_training: "全社公式研修を受けた", department_training: "部門研修を受けた", external_training: "外部研修を受けた", self_learning: "自主的に学習している", no_training: "受けたことがない", do_not_know_if_training_exists: "研修が存在するか分からない",
+      strongly_want_to_use: "強く利用したい", want_to_use: "利用したい", depends_on_conditions: "条件次第で利用したい", do_not_really_want_to_use: "あまり利用したくない", do_not_want_to_use: "利用したくない",
+      secure_chat_ai: "安全なチャットAI", internal_document_search: "社内文書検索", proposal_creation_support: "提案書作成支援", test_design_support: "テスト設計支援", customer_response_support: "顧客対応支援", business_system_integration: "業務システム連携", ai_agent_task_automation: "AIエージェントによる作業自動化"
+    };
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function formatDateTime(value) {
+      if (!value) return "-";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return date.toLocaleString("ja-JP");
+    }
+
+    function setStatus(message, isError = false) {
+      const status = document.getElementById("statusText");
+      status.textContent = message;
+      status.classList.toggle("error", isError);
+    }
+
+    function displayLabel(label, labelType = "option") {
+      if (labelType === "language") return languageLabels[label] || label;
+      if (labelType === "storage") return storageLabels[label] || label;
+      if (labelType === "company" || labelType === "date") return label;
+      return optionLabels[label] || label;
+    }
+
+    function localizeRows(rows, labelType) {
+      return rows.map((row) => ({
+        ...row,
+        label: displayLabel(row.label, labelType)
+      }));
+    }
+
+    function renderMetrics(summary) {
+      const metrics = [
+        ["総回答数", summary.total_responses],
+        ["保存先", displayLabel(summary.storage, "storage")],
+        ["初回回答", formatDateTime(summary.first_received_at)],
+        ["最新回答", formatDateTime(summary.last_received_at)]
+      ];
+      document.getElementById("metrics").innerHTML = metrics.map(([label, value]) => `
+        <div class="metric">
+          <p class="metric-label">${escapeHtml(label)}</p>
+          <p class="metric-value">${escapeHtml(value)}</p>
+        </div>
+      `).join("");
+    }
+
+    function percentOf(count, total) {
+      return total ? Math.round((count / total) * 1000) / 10 : 0;
+    }
+
+    function renderPieChart(rows, total, title) {
+      if (!rows.length || !total) return '<p class="empty">円グラフに表示するデータがありません。</p>';
+      let cursor = 0;
+      const segments = rows.map((row, index) => {
+        const next = cursor + (row.count / total) * 100;
+        const segment = `${chartColors[index % chartColors.length]} ${cursor}% ${next}%`;
+        cursor = next;
+        return segment;
+      });
+      const legend = rows.map((row, index) => {
+        const percent = percentOf(row.count, total);
+        return `
+          <div class="legend-item">
+            <span class="swatch" style="--swatch:${chartColors[index % chartColors.length]}"></span>
+            <span class="legend-label">${escapeHtml(row.label)}</span>
+            <span class="legend-count">${row.count}件 ${percent}%</span>
+          </div>
+        `;
+      }).join("");
+      return `
+        <div>
+          <div class="pie-chart" style="--pie-gradient: conic-gradient(${segments.join(", ")})" role="img" aria-label="${escapeHtml(title)}">
+            <span class="pie-total">${total}</span>
+          </div>
+          <div class="legend">${legend}</div>
+        </div>
+      `;
+    }
+
+    function renderTableRows(rows, total) {
+      return `
+        <table>
+          <thead>
+            <tr><th>項目</th><th>件数</th><th>比率</th></tr>
+          </thead>
+          <tbody>
+            ${rows.map((row) => {
+              const percent = percentOf(row.count, total);
+              return `
+                <tr>
+                  <td>${escapeHtml(row.label)}</td>
+                  <td>${row.count}</td>
+                  <td>
+                    ${percent}%
+                    <div class="bar-track"><div class="bar" style="width:${Math.min(percent, 100)}%"></div></div>
+                  </td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function renderChartTable(targetId, rows, total, title, labelType = "option") {
+      const target = document.getElementById(targetId);
+      if (!rows.length) {
+        target.innerHTML = '<p class="empty">データがありません。</p>';
+        return;
+      }
+      const localizedRows = localizeRows(rows, labelType);
+      target.innerHTML = `
+        <div class="chart-panel">
+          ${renderPieChart(localizedRows, total, title)}
+          ${renderTableRows(localizedRows, total)}
+        </div>
+      `;
+    }
+
+    function renderQuestions(summary) {
+      document.getElementById("questions").innerHTML = Object.values(summary.questions).map((question) => {
+        const total = Math.max(question.answered, 1);
+        const body = question.id === "q20"
+          ? renderTextSamples(question)
+          : renderOptionRows(question.options, total);
+        return `
+          <article class="question">
+            <h3>${escapeHtml(question.id.toUpperCase())} ${escapeHtml(questionLabels[question.id] || "")}</h3>
+            <p class="question-meta">回答 ${question.answered} / 空欄 ${question.blank}</p>
+            ${body}
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderOptionRows(options, total) {
+      if (!options.length) return '<p class="empty">データがありません。</p>';
+      const chartRows = localizeRows(options.slice(0, 8), "option");
+      const chartTotal = chartRows.reduce((sum, option) => sum + option.count, 0);
+      return `
+        <div class="chart-panel">
+          ${renderPieChart(chartRows, chartTotal, "設問別集計")}
+          ${renderTableRows(chartRows, total)}
+        </div>
+      `;
+    }
+
+    function renderTextSamples(question) {
+      if (!question.text_samples.length) return '<p class="empty">自由記述はまだありません。</p>';
+      return `
+        <ul class="sample-list">
+          ${question.text_samples.map((sample) => `<li>${escapeHtml(sample)}</li>`).join("")}
+        </ul>
+      `;
+    }
+
+    function render(summary) {
+      latestSummary = summary;
+      renderMetrics(summary);
+      renderChartTable("languageTable", summary.by_language, summary.total_responses, "言語別回答数", "language");
+      renderChartTable("companyTable", summary.by_company, summary.total_responses, "会社別回答数", "company");
+      renderChartTable("dateTable", summary.by_date, summary.total_responses, "日別回答数", "date");
+      renderQuestions(summary);
+      setStatus(`最終更新: ${formatDateTime(summary.generated_at)}`);
+    }
+
+    async function loadSummary() {
+      setStatus("集計中...");
+      try {
+        const response = await fetch("/api/admin/summary", { cache: "no-store" });
+        const body = await response.json();
+        if (!response.ok || !body.ok) throw new Error(body.error || "集計に失敗しました。");
+        render(body.summary);
+      } catch (error) {
+        setStatus(error.message, true);
+      }
+    }
+
+    function downloadSummary() {
+      if (!latestSummary) return;
+      const blob = new Blob([JSON.stringify(latestSummary, null, 2)], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = "global_ai_readiness_survey_summary.json";
+      anchor.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("refreshButton").addEventListener("click", loadSummary);
+    document.getElementById("downloadButton").addEventListener("click", downloadSummary);
+    loadSummary();
+  </script>
+</body>
+</html>

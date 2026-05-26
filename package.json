@@ -8,7 +8,8 @@
     "test": "node survey_playwright_smoke_test.js",
     "test:server": "node survey_server_api_test.js",
     "test:all": "npm test && npm run test:server",
-    "simulate": "node generate_simulated_survey_analysis.js"
+    "simulate": "node generate_simulated_survey_analysis.js",
+    "seed:admin": "npm run simulate && node seed_simulated_admin_data.js"
   },
   "keywords": [],
   "author": "",
