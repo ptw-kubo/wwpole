@@ -380,6 +380,11 @@
 
     .result-panel.active { display: block; }
 
+    .result-error {
+      color: #b91c1c;
+      font-weight: 800;
+    }
+
     .download-row {
       display: flex;
       gap: 12px;
@@ -1302,6 +1307,18 @@
       if (key) safeStorageSet(key, "true");
     }
 
+    function setSubmitDisabled(disabled) {
+      const submitButton = document.getElementById("submitButton");
+      submitButton.disabled = disabled;
+      submitButton.setAttribute("aria-disabled", disabled ? "true" : "false");
+    }
+
+    function completeSubmission() {
+      state.submitted = true;
+      form.dataset.submitted = "true";
+      setSubmitDisabled(true);
+    }
+
     function getCompanyCode() {
       const params = new URLSearchParams(window.location.search);
       return (params.get("company") || "").trim().toLowerCase();
@@ -1390,20 +1407,26 @@
       document.getElementById("clearButton").textContent = t("ui.clear");
       document.getElementById("submitButton").textContent = t("ui.submit");
       document.getElementById("resultTitle").textContent = t("ui.resultTitle");
-      document.getElementById("resultBody").textContent = t("ui.resultBody");
+      setResultBody(t("ui.resultBody"));
       document.getElementById("downloadJson").textContent = t("ui.downloadJson");
       document.getElementById("downloadCsv").textContent = t("ui.downloadCsv");
       if (shouldPostToServer() && !getCompanyCode()) {
-        document.getElementById("submitButton").disabled = true;
-        document.getElementById("resultBody").textContent = t("ui.missingCompany");
+        setSubmitDisabled(true);
+        setResultBody(t("ui.missingCompany"), true);
         resultPanel.classList.add("active");
       } else if (shouldPostToServer() && hasSubmittedBefore()) {
-        document.getElementById("submitButton").disabled = true;
-        document.getElementById("resultBody").textContent = t("ui.resultDuplicate");
+        setSubmitDisabled(true);
+        setResultBody(t("ui.resultDuplicate"), true);
         resultPanel.classList.add("active");
       } else {
-        document.getElementById("submitButton").disabled = state.submitted;
+        setSubmitDisabled(state.submitted);
       }
+    }
+
+    function setResultBody(message, isError = false) {
+      const resultBody = document.getElementById("resultBody");
+      resultBody.textContent = message;
+      resultBody.classList.toggle("result-error", isError);
     }
 
     function renderQuestions() {
@@ -1661,39 +1684,36 @@
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       if (shouldPostToServer() && hasSubmittedBefore()) {
-        document.getElementById("resultBody").textContent = t("ui.resultDuplicate");
+        setResultBody(t("ui.resultDuplicate"), true);
         resultPanel.classList.add("active");
         resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
         return;
       }
       if (!validateAccess()) return;
       if (!validateForm()) return;
-      const submitButton = document.getElementById("submitButton");
-      submitButton.disabled = true;
+      setSubmitDisabled(true);
       state.latestResponse = collectResponse();
       try {
         if (shouldPostToServer()) {
           state.latestResponse.server_result = await postResponse(state.latestResponse);
           markSubmitted();
-          document.getElementById("resultBody").textContent = t("ui.resultBody");
+          setResultBody(t("ui.resultBody"));
         } else {
-          document.getElementById("resultBody").textContent = t("ui.resultLocalOnly");
+          setResultBody(t("ui.resultLocalOnly"));
         }
-        state.submitted = true;
-        submitButton.disabled = true;
+        completeSubmission();
         resultPanel.classList.add("active");
         resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (error) {
-        document.getElementById("resultBody").textContent = error.code === "duplicate_response" ? t("ui.resultDuplicate") : t("ui.resultSaveFailed");
+        setResultBody(error.code === "duplicate_response" ? t("ui.resultDuplicate") : t("ui.resultSaveFailed"), true);
         if (error.code === "duplicate_response") {
           markSubmitted();
-          state.submitted = true;
-          submitButton.disabled = true;
+          completeSubmission();
         }
         resultPanel.classList.add("active");
         resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
       } finally {
-        if (!state.submitted && !hasSubmittedBefore()) submitButton.disabled = false;
+        if (!state.submitted && !hasSubmittedBefore()) setSubmitDisabled(false);
       }
     });
 
@@ -1701,11 +1721,12 @@
       form.reset();
       state.latestResponse = null;
       state.submitted = false;
+      form.dataset.submitted = "false";
       resultPanel.classList.remove("active");
       removeErrors();
       updateTextCounter();
       updateProgress();
-      document.getElementById("submitButton").disabled = shouldPostToServer() && hasSubmittedBefore();
+      setSubmitDisabled(shouldPostToServer() && hasSubmittedBefore());
     });
 
     document.getElementById("downloadJson").addEventListener("click", () => {

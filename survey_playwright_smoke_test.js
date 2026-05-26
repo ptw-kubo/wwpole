@@ -128,6 +128,8 @@ test("P0-005", "正常回答で結果パネルを表示し進捗20/20", async ({
   await assert.equal(await page.locator("#resultPanel.active").count(), 1);
   await assert.equal(await page.locator("#resultTitle").textContent(), "提出完了");
   await assert.equal(await page.locator("#submitButton").isDisabled(), true);
+  await assert.equal(await page.locator("#submitButton").getAttribute("aria-disabled"), "true");
+  await assert.equal(await page.locator("#surveyForm").getAttribute("data-submitted"), "true");
 });
 
 test("P0-006", "JSON保存は必須メタ情報と回答値を含む", async ({ page }) => {
