@@ -88,6 +88,7 @@ test("P0-001", "初期表示で20問、結果パネル非表示、進捗0/20", a
   await assert.equal(await page.locator(".question").count(), 20);
   await assert.equal(await page.locator("#resultPanel.active").count(), 0);
   await assert.match(await page.locator("#progressText").textContent(), /0\s*\/\s*20/);
+  await assert.equal(await page.locator("#submitButton").textContent(), "アンケートを提出");
 });
 
 test("P0-002", "全未回答送信でQ1〜Q19の必須エラーを表示", async ({ page }) => {
@@ -125,6 +126,7 @@ test("P0-005", "正常回答で結果パネルを表示し進捗20/20", async ({
   await assert.match(await page.locator("#progressText").textContent(), /20\s*\/\s*20/);
   await page.locator("#submitButton").click();
   await assert.equal(await page.locator("#resultPanel.active").count(), 1);
+  await assert.equal(await page.locator("#resultTitle").textContent(), "提出完了");
 });
 
 test("P0-006", "JSON保存は必須メタ情報と回答値を含む", async ({ page }) => {
@@ -173,11 +175,22 @@ test("P1-001", "言語切替で文言が変わり回答は保持される", asyn
 
 test("P1-001b", "8言語の切替ボタンが表示され各言語で描画できる", async ({ page }) => {
   const expectedLanguages = ["ja", "en", "fr", "es", "pt", "vi", "zh", "ko"];
+  const expectedSubmitLabels = {
+    ja: "アンケートを提出",
+    en: "Submit survey",
+    fr: "Envoyer l'enquete",
+    es: "Enviar encuesta",
+    pt: "Enviar pesquisa",
+    vi: "Gui khao sat",
+    zh: "提交问卷",
+    ko: "설문 제출"
+  };
   await assert.equal(await page.locator("[data-language]").count(), expectedLanguages.length);
   for (const language of expectedLanguages) {
     await page.locator(`[data-language="${language}"]`).click();
     await assert.match(await page.locator("html").getAttribute("lang"), new RegExp(`^${language}`));
     await assert.equal(await page.locator(".question").count(), 20);
+    await assert.equal(await page.locator("#submitButton").textContent(), expectedSubmitLabels[language]);
   }
 });
 
