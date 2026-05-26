@@ -127,6 +127,7 @@ test("P0-005", "正常回答で結果パネルを表示し進捗20/20", async ({
   await page.locator("#submitButton").click();
   await assert.equal(await page.locator("#resultPanel.active").count(), 1);
   await assert.equal(await page.locator("#resultTitle").textContent(), "提出完了");
+  await assert.equal(await page.locator("#submitButton").isDisabled(), true);
 });
 
 test("P0-006", "JSON保存は必須メタ情報と回答値を含む", async ({ page }) => {
@@ -185,12 +186,23 @@ test("P1-001b", "8言語の切替ボタンが表示され各言語で描画で�
     zh: "提交问卷",
     ko: "설문 제출"
   };
+  const expectedResultTitles = {
+    ja: "提出完了",
+    en: "Submission complete",
+    fr: "Envoi termine",
+    es: "Envio completado",
+    pt: "Envio concluido",
+    vi: "Da gui xong",
+    zh: "提交完成",
+    ko: "제출 완료"
+  };
   await assert.equal(await page.locator("[data-language]").count(), expectedLanguages.length);
   for (const language of expectedLanguages) {
     await page.locator(`[data-language="${language}"]`).click();
     await assert.match(await page.locator("html").getAttribute("lang"), new RegExp(`^${language}`));
     await assert.equal(await page.locator(".question").count(), 20);
     await assert.equal(await page.locator("#submitButton").textContent(), expectedSubmitLabels[language]);
+    await assert.equal(await page.locator("#resultTitle").textContent(), expectedResultTitles[language]);
   }
 });
 

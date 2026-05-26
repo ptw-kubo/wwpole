@@ -347,12 +347,22 @@
       cursor: pointer;
     }
 
+    .action-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.48;
+    }
+
     .primary {
       background: var(--accent);
       color: #fff;
     }
 
     .primary:hover { background: var(--accent-dark); }
+
+    .primary:disabled,
+    .primary:disabled:hover {
+      background: #9aa7b8;
+    }
 
     .secondary {
       background: #fff;
@@ -1222,7 +1232,8 @@
 
     const state = {
       language: pickInitialLanguage(),
-      latestResponse: null
+      latestResponse: null,
+      submitted: false
     };
 
     const respondentIdKey = "global_ai_readiness_survey.respondent_id";
@@ -1391,7 +1402,7 @@
         document.getElementById("resultBody").textContent = t("ui.resultDuplicate");
         resultPanel.classList.add("active");
       } else {
-        document.getElementById("submitButton").disabled = false;
+        document.getElementById("submitButton").disabled = state.submitted;
       }
     }
 
@@ -1453,7 +1464,7 @@
       renderStaticText();
       renderQuestions();
       restoreAnswers(savedAnswers);
-      if (!hasSubmittedBefore()) resultPanel.classList.remove("active");
+      if (!state.submitted && !hasSubmittedBefore()) resultPanel.classList.remove("active");
     }
 
     function getValue(id) {
@@ -1613,7 +1624,7 @@
       const button = event.target.closest("[data-language]");
       if (!button) return;
       state.language = button.dataset.language;
-      state.latestResponse = null;
+      if (!state.submitted) state.latestResponse = null;
       renderAll();
     });
 
@@ -1631,15 +1642,19 @@
           setTimeout(removeErrors, 1800);
         }
       }
-      state.latestResponse = null;
-      resultPanel.classList.remove("active");
+      if (!state.submitted) {
+        state.latestResponse = null;
+        resultPanel.classList.remove("active");
+      }
       updateProgress();
     });
 
     form.addEventListener("input", (event) => {
       if (event.target.name === "q20") updateTextCounter();
-      state.latestResponse = null;
-      resultPanel.classList.remove("active");
+      if (!state.submitted) {
+        state.latestResponse = null;
+        resultPanel.classList.remove("active");
+      }
       updateProgress();
     });
 
@@ -1660,33 +1675,37 @@
         if (shouldPostToServer()) {
           state.latestResponse.server_result = await postResponse(state.latestResponse);
           markSubmitted();
-          submitButton.disabled = true;
           document.getElementById("resultBody").textContent = t("ui.resultBody");
         } else {
           document.getElementById("resultBody").textContent = t("ui.resultLocalOnly");
         }
+        state.submitted = true;
+        submitButton.disabled = true;
         resultPanel.classList.add("active");
         resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (error) {
         document.getElementById("resultBody").textContent = error.code === "duplicate_response" ? t("ui.resultDuplicate") : t("ui.resultSaveFailed");
         if (error.code === "duplicate_response") {
           markSubmitted();
+          state.submitted = true;
           submitButton.disabled = true;
         }
         resultPanel.classList.add("active");
         resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
       } finally {
-        if (!hasSubmittedBefore()) submitButton.disabled = false;
+        if (!state.submitted && !hasSubmittedBefore()) submitButton.disabled = false;
       }
     });
 
     document.getElementById("clearButton").addEventListener("click", () => {
       form.reset();
       state.latestResponse = null;
+      state.submitted = false;
       resultPanel.classList.remove("active");
       removeErrors();
       updateTextCounter();
       updateProgress();
+      document.getElementById("submitButton").disabled = shouldPostToServer() && hasSubmittedBefore();
     });
 
     document.getElementById("downloadJson").addEventListener("click", () => {
