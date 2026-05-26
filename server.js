@@ -75,7 +75,7 @@ function isString(value, maxLength = 1000) {
 function validateResponse(payload) {
   if (!payload || typeof payload !== "object") return "Request body must be a JSON object.";
   if (payload.survey !== "global_ai_readiness_survey") return "Invalid survey value.";
-  if (!["ja", "en", "zh", "es"].includes(payload.language)) return "Invalid language value.";
+  if (!["ja", "en", "fr", "es", "pt", "vi", "zh", "ko"].includes(payload.language)) return "Invalid language value.";
   if (!isString(payload.company_code, 80) || !/^[a-z0-9][a-z0-9-]{1,78}[a-z0-9]$/i.test(payload.company_code)) return "Invalid company_code value.";
   if (!isString(payload.response_code, 80) || !/^[a-z0-9][a-z0-9-]{3,78}[a-z0-9]$/i.test(payload.response_code)) return "Invalid response_code value.";
   if (!isString(payload.submitted_at, 40) || Number.isNaN(Date.parse(payload.submitted_at))) return "Invalid submitted_at value.";
@@ -263,11 +263,143 @@ async function saveRecord(record) {
   return saveToLocalFile(record);
 }
 
+async function listAzureRecords() {
+  const credential = new DefaultAzureCredential();
+  const blobServiceClient = new BlobServiceClient(
+    `https://${storageAccountName}.blob.core.windows.net`,
+    credential
+  );
+  const containerClient = blobServiceClient.getContainerClient(storageContainerName);
+  const records = [];
+  for await (const blob of containerClient.listBlobsFlat()) {
+    if (!isResponseJsonName(blob.name)) continue;
+    try {
+      const buffer = await containerClient.getBlobClient(blob.name).downloadToBuffer();
+      records.push(JSON.parse(buffer.toString("utf8")));
+    } catch (_) {
+      // Ignore malformed or unrelated JSON files in the container.
+    }
+  }
+  return records;
+}
+
+async function listLocalRecords() {
+  const files = await collectLocalJsonFiles(localResponseDir);
+  const records = [];
+  for (const file of files) {
+    try {
+      records.push(JSON.parse(await fs.readFile(file, "utf8")));
+    } catch (_) {
+      // Ignore malformed or unrelated JSON files in the local response directory.
+    }
+  }
+  return records;
+}
+
+async function listRecords() {
+  return storageAccountName ? listAzureRecords() : listLocalRecords();
+}
+
+function incrementCounter(counter, key) {
+  const normalizedKey = String(key || "未回答");
+  counter[normalizedKey] = (counter[normalizedKey] || 0) + 1;
+}
+
+function sortedCounter(counter) {
+  return Object.entries(counter)
+    .map(([label, count]) => ({ label, count }))
+    .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label));
+}
+
+function createEmptyQuestionSummary(id) {
+  return {
+    id,
+    answered: 0,
+    blank: 0,
+    options: {},
+    text_samples: []
+  };
+}
+
+function buildSummary(records) {
+  const summary = {
+    generated_at: new Date().toISOString(),
+    storage: storageAccountName ? "azure_blob" : "local_file",
+    total_responses: records.length,
+    first_received_at: "",
+    last_received_at: "",
+    by_language: {},
+    by_company: {},
+    by_date: {},
+    questions: Object.fromEntries(
+      Array.from({ length: 20 }, (_, index) => {
+        const id = `q${String(index + 1).padStart(2, "0")}`;
+        return [id, createEmptyQuestionSummary(id)];
+      })
+    )
+  };
+
+  const receivedTimes = [];
+  for (const record of records) {
+    if (!record || !record.response || !record.response.answers) continue;
+    incrementCounter(summary.by_language, record.response.language);
+    incrementCounter(summary.by_company, record.company_code);
+    if (record.received_at) {
+      receivedTimes.push(record.received_at);
+      incrementCounter(summary.by_date, record.received_at.slice(0, 10));
+    }
+
+    for (const [id, questionSummary] of Object.entries(summary.questions)) {
+      const value = record.response.answers[id];
+      const isBlank = value === undefined || value === null || value === "" || (Array.isArray(value) && value.length === 0);
+      if (isBlank) {
+        questionSummary.blank += 1;
+        continue;
+      }
+      questionSummary.answered += 1;
+      if (Array.isArray(value)) {
+        value.forEach((item) => incrementCounter(questionSummary.options, item));
+      } else if (id === "q20") {
+        if (questionSummary.text_samples.length < 20) questionSummary.text_samples.push(String(value));
+      } else {
+        incrementCounter(questionSummary.options, value);
+      }
+    }
+  }
+
+  receivedTimes.sort();
+  summary.first_received_at = receivedTimes[0] || "";
+  summary.last_received_at = receivedTimes[receivedTimes.length - 1] || "";
+  summary.by_language = sortedCounter(summary.by_language);
+  summary.by_company = sortedCounter(summary.by_company);
+  summary.by_date = sortedCounter(summary.by_date).sort((left, right) => left.label.localeCompare(right.label));
+  summary.questions = Object.fromEntries(Object.entries(summary.questions).map(([id, questionSummary]) => [
+    id,
+    {
+      ...questionSummary,
+      options: sortedCounter(questionSummary.options)
+    }
+  ]));
+  return summary;
+}
+
 app.get("/healthz", (_request, response) => {
   response.json({
     ok: true,
     storage: storageAccountName ? "azure_blob" : "local_file"
   });
+});
+
+app.get("/api/admin/summary", async (_request, response) => {
+  try {
+    response.json({
+      ok: true,
+      summary: buildSummary(await listRecords())
+    });
+  } catch (error) {
+    console.error("Failed to build summary", error);
+    response.status(500).json({ ok: false, error: "Failed to build summary." });
+  }
 });
 
 app.post("/api/responses", async (request, response) => {
@@ -298,6 +430,10 @@ app.post("/api/responses", async (request, response) => {
 
 app.get("/", (_request, response) => {
   response.sendFile(path.join(root, "global_ai_readiness_survey.html"));
+});
+
+app.get("/admin", (_request, response) => {
+  response.sendFile(path.join(root, "admin_dashboard.html"));
 });
 
 app.use(express.static(root, {
