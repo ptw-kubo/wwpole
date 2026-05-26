@@ -52,6 +52,8 @@ Container Appに設定する。
 | `AZURE_STORAGE_CONTAINER_NAME` | `survey-responses` |
 | `BASIC_AUTH_USERNAME` | BASIC認証ユーザー名 |
 | `BASIC_AUTH_PASSWORD` | BASIC認証パスワード。AzureではContainer Apps Secretから参照する |
+| `ADMIN_BASIC_AUTH_USERNAME` | 管理画面用BASIC認証ユーザー名 |
+| `ADMIN_BASIC_AUTH_PASSWORD` | 管理画面用BASIC認証パスワード。AzureではContainer Apps Secretから参照する |
 
 ## Azure CLI 実行例
 
@@ -110,7 +112,9 @@ az containerapp create `
     AZURE_STORAGE_ACCOUNT_NAME=$storage `
     AZURE_STORAGE_CONTAINER_NAME=$container `
     BASIC_AUTH_USERNAME="survey" `
-    BASIC_AUTH_PASSWORD="<BASIC認証パスワード>"
+    BASIC_AUTH_PASSWORD="<BASIC認証パスワード>" `
+    ADMIN_BASIC_AUTH_USERNAME="admin" `
+    ADMIN_BASIC_AUTH_PASSWORD="<管理画面BASIC認証パスワード>"
 
 $principalId = az containerapp show `
   --resource-group $rg `

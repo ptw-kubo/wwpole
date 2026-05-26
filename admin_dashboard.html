@@ -78,6 +78,41 @@
       flex-wrap: wrap;
     }
 
+    .filter-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      align-items: end;
+      margin-top: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    select {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      padding: 7px 9px;
+      font: inherit;
+    }
+
     button {
       border: 1px solid var(--accent);
       background: var(--accent);
@@ -283,6 +318,7 @@
       .metric-grid,
       .two-column,
       .questions,
+      .filter-grid,
       .chart-panel {
         grid-template-columns: 1fr;
       }
@@ -302,6 +338,29 @@
       </div>
       <p class="status" id="statusText">読み込み中...</p>
     </div>
+
+    <section class="filter-panel" aria-label="集計条件">
+      <h2>集計条件</h2>
+      <p class="subhead">Q1〜Q4の回答単位で絞り込んで再集計できます。</p>
+      <div class="filter-grid">
+        <label>
+          Q1 所属会社
+          <select id="filterQ01" data-filter="q01"></select>
+        </label>
+        <label>
+          Q2 所属国・地域
+          <select id="filterQ02" data-filter="q02"></select>
+        </label>
+        <label>
+          Q3 所属部門
+          <select id="filterQ03" data-filter="q03"></select>
+        </label>
+        <label>
+          Q4 職位
+          <select id="filterQ04" data-filter="q04"></select>
+        </label>
+      </div>
+    </section>
 
     <div class="metric-grid" id="metrics"></div>
 
@@ -441,11 +500,39 @@
       }));
     }
 
+    function getFilters() {
+      return Object.fromEntries(
+        [...document.querySelectorAll("[data-filter]")]
+          .map((field) => [field.dataset.filter, field.value])
+          .filter(([, value]) => value)
+      );
+    }
+
+    function filterQueryString() {
+      const params = new URLSearchParams(getFilters());
+      const query = params.toString();
+      return query ? `?${query}` : "";
+    }
+
+    function renderFilters(summary) {
+      const currentFilters = summary.filters || {};
+      for (const id of ["q01", "q02", "q03", "q04"]) {
+        const field = document.querySelector(`[data-filter="${id}"]`);
+        const rows = summary.filter_options?.[id] || [];
+        const options = rows.map((row) => {
+          const label = displayLabel(row.label, "option");
+          const selected = currentFilters[id] === row.label ? " selected" : "";
+          return `<option value="${escapeHtml(row.label)}"${selected}>${escapeHtml(label)} (${row.count})</option>`;
+        }).join("");
+        field.innerHTML = `<option value="">すべて</option>${options}`;
+      }
+    }
+
     function renderMetrics(summary) {
       const metrics = [
         ["総回答数", summary.total_responses],
+        ["全回答数", summary.total_unfiltered_responses],
         ["保存先", displayLabel(summary.storage, "storage")],
-        ["初回回答", formatDateTime(summary.first_received_at)],
         ["最新回答", formatDateTime(summary.last_received_at)]
       ];
       document.getElementById("metrics").innerHTML = metrics.map(([label, value]) => `
@@ -568,6 +655,7 @@
 
     function render(summary) {
       latestSummary = summary;
+      renderFilters(summary);
       renderMetrics(summary);
       renderChartTable("languageTable", summary.by_language, summary.total_responses, "言語別回答数", "language");
       renderChartTable("companyTable", summary.by_company, summary.total_responses, "会社別回答数", "company");
@@ -579,7 +667,7 @@
     async function loadSummary() {
       setStatus("集計中...");
       try {
-        const response = await fetch("/api/admin/summary", { cache: "no-store" });
+        const response = await fetch(`/api/admin/summary${filterQueryString()}`, { cache: "no-store" });
         const body = await response.json();
         if (!response.ok || !body.ok) throw new Error(body.error || "集計に失敗しました。");
         render(body.summary);
@@ -601,6 +689,9 @@
 
     document.getElementById("refreshButton").addEventListener("click", loadSummary);
     document.getElementById("downloadButton").addEventListener("click", downloadSummary);
+    document.querySelectorAll("[data-filter]").forEach((field) => {
+      field.addEventListener("change", loadSummary);
+    });
     loadSummary();
   </script>
 </body>

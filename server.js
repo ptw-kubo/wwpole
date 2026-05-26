@@ -13,12 +13,18 @@ const storageAccountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
 const storageContainerName = process.env.AZURE_STORAGE_CONTAINER_NAME || "survey-responses";
 const basicAuthUsername = process.env.BASIC_AUTH_USERNAME || "";
 const basicAuthPassword = process.env.BASIC_AUTH_PASSWORD || "";
+const adminBasicAuthUsername = process.env.ADMIN_BASIC_AUTH_USERNAME || basicAuthUsername;
+const adminBasicAuthPassword = process.env.ADMIN_BASIC_AUTH_PASSWORD || basicAuthPassword;
 const maxPayloadBytes = 64 * 1024;
 
 app.disable("x-powered-by");
 
 if ((basicAuthUsername && !basicAuthPassword) || (!basicAuthUsername && basicAuthPassword)) {
   throw new Error("BASIC_AUTH_USERNAME and BASIC_AUTH_PASSWORD must be set together.");
+}
+
+if ((adminBasicAuthUsername && !adminBasicAuthPassword) || (!adminBasicAuthUsername && adminBasicAuthPassword)) {
+  throw new Error("ADMIN_BASIC_AUTH_USERNAME and ADMIN_BASIC_AUTH_PASSWORD must be set together.");
 }
 
 function safeEqual(left, right) {
@@ -38,27 +44,31 @@ function parseBasicAuth(header) {
   };
 }
 
-function basicAuth(request, response, next) {
-  if (!basicAuthUsername && !basicAuthPassword) {
-    next();
-    return;
-  }
+function createBasicAuth(username, password, realm) {
+  return function basicAuth(request, response, next) {
+    if (!username && !password) {
+      next();
+      return;
+    }
 
-  const credentials = parseBasicAuth(request.get("authorization"));
-  if (
-    credentials
-    && safeEqual(credentials.username, basicAuthUsername)
-    && safeEqual(credentials.password, basicAuthPassword)
-  ) {
-    next();
-    return;
-  }
+    const credentials = parseBasicAuth(request.get("authorization"));
+    if (
+      credentials
+      && safeEqual(credentials.username, username)
+      && safeEqual(credentials.password, password)
+    ) {
+      next();
+      return;
+    }
 
-  response.set("WWW-Authenticate", 'Basic realm="Global AI Readiness Survey", charset="UTF-8"');
-  response.status(401).send("Authentication required.");
+    response.set("WWW-Authenticate", `Basic realm="${realm}", charset="UTF-8"`);
+    response.status(401).send("Authentication required.");
+  };
 }
 
-app.use(basicAuth);
+const surveyAuth = createBasicAuth(basicAuthUsername, basicAuthPassword, "Global AI Readiness Survey");
+const adminAuth = createBasicAuth(adminBasicAuthUsername, adminBasicAuthPassword, "Global AI Readiness Survey Admin");
+
 app.use(express.json({ limit: `${maxPayloadBytes}b` }));
 
 class DuplicateSubmissionError extends Error {
@@ -321,11 +331,44 @@ function createEmptyQuestionSummary(id) {
   };
 }
 
-function buildSummary(records) {
+function answerMatchesFilter(record, filters) {
+  if (!record || !record.response || !record.response.answers) return false;
+  return Object.entries(filters).every(([id, expected]) => {
+    if (!expected) return true;
+    return record.response.answers[id] === expected;
+  });
+}
+
+function parseSummaryFilters(query) {
+  return Object.fromEntries(
+    ["q01", "q02", "q03", "q04"]
+      .map((id) => [id, isString(query[id], 120) ? query[id] : ""])
+      .filter(([, value]) => value)
+  );
+}
+
+function buildFilterOptions(records) {
+  const filterOptions = {};
+  for (const id of ["q01", "q02", "q03", "q04"]) {
+    const counter = {};
+    for (const record of records) {
+      if (!record || !record.response || !record.response.answers) continue;
+      incrementCounter(counter, record.response.answers[id]);
+    }
+    filterOptions[id] = sortedCounter(counter);
+  }
+  return filterOptions;
+}
+
+function buildSummary(records, filters = {}) {
+  const filteredRecords = records.filter((record) => answerMatchesFilter(record, filters));
   const summary = {
     generated_at: new Date().toISOString(),
     storage: storageAccountName ? "azure_blob" : "local_file",
-    total_responses: records.length,
+    total_responses: filteredRecords.length,
+    total_unfiltered_responses: records.length,
+    filters,
+    filter_options: buildFilterOptions(records),
     first_received_at: "",
     last_received_at: "",
     by_language: {},
@@ -340,7 +383,7 @@ function buildSummary(records) {
   };
 
   const receivedTimes = [];
-  for (const record of records) {
+  for (const record of filteredRecords) {
     if (!record || !record.response || !record.response.answers) continue;
     incrementCounter(summary.by_language, record.response.language);
     incrementCounter(summary.by_company, record.company_code);
@@ -383,18 +426,19 @@ function buildSummary(records) {
   return summary;
 }
 
-app.get("/healthz", (_request, response) => {
+app.get("/healthz", surveyAuth, (_request, response) => {
   response.json({
     ok: true,
     storage: storageAccountName ? "azure_blob" : "local_file"
   });
 });
 
-app.get("/api/admin/summary", async (_request, response) => {
+app.get("/api/admin/summary", adminAuth, async (request, response) => {
   try {
+    const records = await listRecords();
     response.json({
       ok: true,
-      summary: buildSummary(await listRecords())
+      summary: buildSummary(records, parseSummaryFilters(request.query))
     });
   } catch (error) {
     console.error("Failed to build summary", error);
@@ -402,7 +446,7 @@ app.get("/api/admin/summary", async (_request, response) => {
   }
 });
 
-app.post("/api/responses", async (request, response) => {
+app.post("/api/responses", surveyAuth, async (request, response) => {
   const validationError = validateResponse(request.body);
   if (validationError) {
     response.status(400).json({ ok: false, error: validationError });
@@ -428,15 +472,23 @@ app.post("/api/responses", async (request, response) => {
   }
 });
 
-app.get("/", (_request, response) => {
+app.get("/", surveyAuth, (_request, response) => {
   response.sendFile(path.join(root, "global_ai_readiness_survey.html"));
 });
 
-app.get("/admin", (_request, response) => {
+app.get("/admin", adminAuth, (_request, response) => {
   response.sendFile(path.join(root, "admin_dashboard.html"));
 });
 
-app.use(express.static(root, {
+function staticAuth(request, response, next) {
+  if (request.path === "/admin_dashboard.html") {
+    adminAuth(request, response, next);
+    return;
+  }
+  surveyAuth(request, response, next);
+}
+
+app.use(staticAuth, express.static(root, {
   extensions: ["html"],
   index: false,
   setHeaders(response, filePath) {

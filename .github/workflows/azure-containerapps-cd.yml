@@ -51,11 +51,13 @@ jobs:
           AZURE_STORAGE_ACCOUNT_NAME: ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}
           BASIC_AUTH_USERNAME: ${{ vars.BASIC_AUTH_USERNAME }}
           BASIC_AUTH_PASSWORD: ${{ secrets.BASIC_AUTH_PASSWORD }}
+          ADMIN_BASIC_AUTH_USERNAME: ${{ vars.ADMIN_BASIC_AUTH_USERNAME }}
+          ADMIN_BASIC_AUTH_PASSWORD: ${{ secrets.ADMIN_BASIC_AUTH_PASSWORD }}
         run: |
           set -euo pipefail
 
           missing=0
-          for name in AZURE_CLIENT_ID AZURE_TENANT_ID AZURE_ACR_NAME AZURE_STORAGE_ACCOUNT_NAME BASIC_AUTH_USERNAME BASIC_AUTH_PASSWORD; do
+          for name in AZURE_CLIENT_ID AZURE_TENANT_ID AZURE_ACR_NAME AZURE_STORAGE_ACCOUNT_NAME BASIC_AUTH_USERNAME BASIC_AUTH_PASSWORD ADMIN_BASIC_AUTH_USERNAME ADMIN_BASIC_AUTH_PASSWORD; do
             if [ -z "${!name:-}" ]; then
               echo "::error::$name is not set. Configure it in GitHub repository Settings > Secrets and variables > Actions."
               missing=1
@@ -138,6 +140,8 @@ jobs:
           AZURE_STORAGE_ACCOUNT_NAME: ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}
           BASIC_AUTH_USERNAME: ${{ vars.BASIC_AUTH_USERNAME }}
           BASIC_AUTH_PASSWORD: ${{ secrets.BASIC_AUTH_PASSWORD }}
+          ADMIN_BASIC_AUTH_USERNAME: ${{ vars.ADMIN_BASIC_AUTH_USERNAME }}
+          ADMIN_BASIC_AUTH_PASSWORD: ${{ secrets.ADMIN_BASIC_AUTH_PASSWORD }}
         run: |
           set -euo pipefail
 
@@ -221,7 +225,9 @@ jobs:
           az containerapp secret set \
             --resource-group "$AZURE_RESOURCE_GROUP" \
             --name "$AZURE_CONTAINER_APP_NAME" \
-            --secrets basic-auth-password="$BASIC_AUTH_PASSWORD"
+            --secrets \
+              basic-auth-password="$BASIC_AUTH_PASSWORD" \
+              admin-basic-auth-password="$ADMIN_BASIC_AUTH_PASSWORD"
 
           az containerapp update \
             --resource-group "$AZURE_RESOURCE_GROUP" \
@@ -232,7 +238,9 @@ jobs:
               AZURE_STORAGE_ACCOUNT_NAME="$AZURE_STORAGE_ACCOUNT_NAME" \
               AZURE_STORAGE_CONTAINER_NAME="$AZURE_STORAGE_CONTAINER_NAME" \
               BASIC_AUTH_USERNAME="$BASIC_AUTH_USERNAME" \
-              BASIC_AUTH_PASSWORD=secretref:basic-auth-password
+              BASIC_AUTH_PASSWORD=secretref:basic-auth-password \
+              ADMIN_BASIC_AUTH_USERNAME="$ADMIN_BASIC_AUTH_USERNAME" \
+              ADMIN_BASIC_AUTH_PASSWORD=secretref:admin-basic-auth-password
 
       - name: Show app URL
         shell: bash

@@ -8,6 +8,7 @@ const port = 18080;
 const baseUrl = `http://127.0.0.1:${port}`;
 const responseDir = path.join(root, "test-results", "server-api", "responses");
 const basicAuth = `Basic ${Buffer.from("survey-user:survey-pass").toString("base64")}`;
+const adminAuth = `Basic ${Buffer.from("admin-user:admin-pass").toString("base64")}`;
 
 fs.rmSync(path.join(root, "test-results", "server-api"), { recursive: true, force: true });
 fs.mkdirSync(responseDir, { recursive: true });
@@ -73,7 +74,9 @@ function waitForServer(processHandle) {
       LOCAL_RESPONSE_DIR: responseDir,
       AZURE_STORAGE_ACCOUNT_NAME: "",
       BASIC_AUTH_USERNAME: "survey-user",
-      BASIC_AUTH_PASSWORD: "survey-pass"
+      BASIC_AUTH_PASSWORD: "survey-pass",
+      ADMIN_BASIC_AUTH_USERNAME: "admin-user",
+      ADMIN_BASIC_AUTH_PASSWORD: "admin-pass"
     },
     stdio: ["ignore", "pipe", "pipe"]
   });
@@ -91,8 +94,13 @@ function waitForServer(processHandle) {
     await assert.equal(health.status, 200);
     await assert.deepEqual(await health.json(), { ok: true, storage: "local_file" });
 
-    const adminPage = await fetch(`${baseUrl}/admin`, {
+    const adminWithSurveyAuth = await fetch(`${baseUrl}/admin`, {
       headers: { Authorization: basicAuth }
+    });
+    await assert.equal(adminWithSurveyAuth.status, 401);
+
+    const adminPage = await fetch(`${baseUrl}/admin`, {
+      headers: { Authorization: adminAuth }
     });
     await assert.equal(adminPage.status, 200);
     await assert.match(await adminPage.text(), /アンケート管理/);
@@ -146,19 +154,36 @@ function waitForServer(processHandle) {
     await assert.equal(multilingualSave.status, 201);
 
     const summaryResponse = await fetch(`${baseUrl}/api/admin/summary`, {
-      headers: { Authorization: basicAuth }
+      headers: { Authorization: adminAuth }
     });
     await assert.equal(summaryResponse.status, 200);
     const summaryBody = await summaryResponse.json();
     await assert.equal(summaryBody.ok, true);
     await assert.equal(summaryBody.summary.total_responses, 2);
+    await assert.equal(summaryBody.summary.total_unfiltered_responses, 2);
     await assert.deepEqual(summaryBody.summary.by_language, [
       { label: "ja", count: 1 },
       { label: "ko", count: 1 }
     ]);
+    await assert.equal(summaryBody.summary.filter_options.q01[0].label, "japan_headquarters");
+    await assert.equal(summaryBody.summary.filter_options.q01[0].count, 2);
     await assert.equal(summaryBody.summary.questions.q01.answered, 2);
     await assert.equal(summaryBody.summary.questions.q01.options[0].label, "japan_headquarters");
     await assert.equal(summaryBody.summary.questions.q01.options[0].count, 2);
+
+    const filteredSummaryResponse = await fetch(`${baseUrl}/api/admin/summary?q04=member`, {
+      headers: { Authorization: adminAuth }
+    });
+    await assert.equal(filteredSummaryResponse.status, 200);
+    const filteredSummaryBody = await filteredSummaryResponse.json();
+    await assert.equal(filteredSummaryBody.summary.total_responses, 0);
+    await assert.equal(filteredSummaryBody.summary.total_unfiltered_responses, 2);
+    await assert.deepEqual(filteredSummaryBody.summary.filters, { q04: "member" });
+
+    const summaryWithSurveyAuth = await fetch(`${baseUrl}/api/admin/summary`, {
+      headers: { Authorization: basicAuth }
+    });
+    await assert.equal(summaryWithSurveyAuth.status, 401);
 
     const invalid = validPayload();
     delete invalid.answers.q19;

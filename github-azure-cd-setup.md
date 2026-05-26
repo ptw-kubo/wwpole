@@ -18,6 +18,7 @@ GitHub repositoryの `Settings > Secrets and variables > Actions` に設定す�
 | `AZURE_CLIENT_ID` | OIDC用のEntraアプリケーション、またはユーザー割り当てManaged IdentityのClient ID |
 | `AZURE_TENANT_ID` | Azure tenant ID |
 | `BASIC_AUTH_PASSWORD` | アンケート画面にアクセスするためのBASIC認証パスワード |
+| `ADMIN_BASIC_AUTH_PASSWORD` | 管理画面にアクセスするためのBASIC認証パスワード |
 
 `AZURE_SUBSCRIPTION_ID` はworkflow内に固定値として入れているためSecret化していない。
 
@@ -28,6 +29,7 @@ GitHub repositoryの `Settings > Secrets and variables > Actions` に設定す�
 | `AZURE_ACR_NAME` | `acrwwpoledev001` | Azure全体で一意なACR名 |
 | `AZURE_STORAGE_ACCOUNT_NAME` | `stwwpolesurvey001` | Azure全体で一意、小文字英数字、3〜24文字 |
 | `BASIC_AUTH_USERNAME` | `survey` | アンケート画面にアクセスするためのBASIC認証ユーザー名 |
+| `ADMIN_BASIC_AUTH_USERNAME` | `admin` | 管理画面にアクセスするためのBASIC認証ユーザー名 |
 
 ## 2. OIDC認証の作成例
 
@@ -151,7 +153,7 @@ CSV Blob Path: YYYY-MM-DD/csv/<received_at>_<response_id>.csv
 
 - `Role Based Access Control Administrator` をGitHub Actions用IDに付けたくない場合は、初回だけ手動でContainer AppのManaged Identityに `Storage Blob Data Contributor` を付与し、workflowの `Assign storage role to Container App identity` stepを削除または無効化する。
 - GitHub Actionsの認証はClient SecretではなくOIDCを使う。Secretにクライアントシークレットを置かない。
-- `BASIC_AUTH_PASSWORD` は必ずSecretに作成する。コードやVariablesには保存しない。
-- BASIC認証はアプリ全体に適用される。回答者には会社別URL、回答コードに加えてBASIC認証のユーザー名・パスワードを別経路で案内する。
+- `BASIC_AUTH_PASSWORD` と `ADMIN_BASIC_AUTH_PASSWORD` は必ずSecretに作成する。コードやVariablesには保存しない。
+- アンケート画面と管理画面は別のBASIC認証を使う。回答者には `BASIC_AUTH_USERNAME/PASSWORD` のみを案内し、管理者には `ADMIN_BASIC_AUTH_USERNAME/PASSWORD` を別経路で案内する。
 - 本番回答データはBlobにJSONとCSVの両方を保存する。JSONは監査・正本用、CSVは集計・Excel/Power BI用として扱う。
 - Entra IDを使わない会社向けには、会社別URL `?company=<company_code>` と回答コードを配布する。同じ会社コードと回答コードの組み合わせはサーバー側でハッシュ化し、保存済みJSONに同じ組み合わせがある場合は重複回答を拒否する。生の回答コードはBlobへ保存しない。
